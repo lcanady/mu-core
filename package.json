@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "js-sha512": "^0.8.0",
     "nedb": "^1.8.0",
     "node-telnet": "^1.0.1",
     "pegjs": "^0.10.0",

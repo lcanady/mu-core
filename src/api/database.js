@@ -43,6 +43,11 @@ class Database {
     );
   }
 
+  /**
+   * Update a record in the database.
+   * @param {string} id The id of the db entry.
+   * @param {Object} data The data to update the db entry with
+   */
   update(id, data) {
     return new Promise((resolve, reject) =>
       this._db.update(
@@ -73,6 +78,18 @@ class Database {
           resolve(num);
         }
       )
+    );
+  }
+
+  /**
+   * Count the records in the database.
+   */
+  count() {
+    return new Promise((resolve, reject) =>
+      this._db.count({}, (err, num) => {
+        if (err) reject(err);
+        resolve(num);
+      })
     );
   }
 }

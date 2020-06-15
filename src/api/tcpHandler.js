@@ -19,10 +19,8 @@ module.exports = (mu) => {
     socket.on("data", (b) =>
       mu.parser.process({
         user,
-        payload: {
-          command: "message",
-          message: b.toString(),
-        },
+        command: "message",
+        message: b.toString(),
       })
     );
   };

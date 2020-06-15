@@ -1,7 +1,9 @@
 const { EventEmitter } = require("events");
 const { createServer } = require("net");
 const commands = require("./commands");
+const services = require("./services");
 const parser = require("./api/parser");
+const flags = require("./api/flags");
 const { db } = require("./api/database");
 
 class MU extends EventEmitter {
@@ -10,6 +12,7 @@ class MU extends EventEmitter {
     this.connections = new Map();
     this.commands = [];
     this.parser = parser;
+    this.flags = flags;
     this.db = db;
   }
 
@@ -30,6 +33,7 @@ class MU extends EventEmitter {
     const tcp = createServer(require("./api/tcpHandler")(this));
 
     // Configure commands
+    this.configure(services);
     this.configure(commands);
 
     // Start TCP service
