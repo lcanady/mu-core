@@ -48,7 +48,7 @@ class Database {
    * @param {string} id The id of the db entry.
    * @param {Object} data The data to update the db entry with
    */
-  update(id, data) {
+  async update(id, data) {
     return new Promise((resolve, reject) =>
       this._db.update(
         {
@@ -58,8 +58,9 @@ class Database {
         },
         data,
         { returnUpdatedDocs: true },
-        (err, docs) => {
-          if (err) reject(err), resolve(docs);
+        (err, num, docs) => {
+          if (err) reject(err);
+          resolve(docs);
         }
       )
     );

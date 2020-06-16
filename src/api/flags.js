@@ -39,6 +39,10 @@ class Flags {
     }
   }
 
+  isFlag(flag) {
+    return this.flags.filter((flg) => flg.name === flag.toLowerCase())[0];
+  }
+
   /**
    * Search an object for certain flags.
    * @param {Object} obj The object to check.
@@ -51,7 +55,8 @@ class Flags {
       en = await db.get(obj._id);
     }
     const results = [];
-    flgs.forEach((flag) => {
+
+    for (const flag of flgs) {
       // If the flag starts with a bang, then we need to make sure the
       // data object DOESN'T have the flag.
       if (flag.startsWith("!")) {
@@ -61,11 +66,18 @@ class Flags {
             ? true
             : false
         );
+      } else if (flag.endsWith("+")) {
+        const rec = this.flags.find((flg) => flg.name === flag.slice(-1));
+        if (rec) {
+          return rec.lvl >= (await this.bitLvl(obj)) ? true : false;
+        } else {
+          return false;
+        }
       } else {
         // Else check for the flag per normal.
         results.push(en?.data?.flags.indexOf(flag.toLowerCase()) ?? false);
       }
-    });
+    }
 
     // Finally, make sure there's no false entries in the results.
     return results.indexOf(false) === -1;
@@ -111,75 +123,51 @@ class Flags {
 
   /**
    * Set flags on obj2 checking obj1 for permissions.
-   * @param {Object} obj1
-   * @param {Object} obj2
+   * @param {Object} obj The target Object
    * @param {string} flags The flag string to check against.
    */
-  async setFlags(obj1, obj2, flags) {
-    let en, tar;
-    if (obj1._id) {
-      en = await db.get(obj1._id);
+  async setFlags(obj, flags = "") {
+    let tar;
+    if (obj._id) {
+      tar = await db.get(obj._id);
     }
 
-    if (obj2._id) {
-      tar = await db.get(obj2._id);
-    }
+    // Split the flag string into an array
+    flags = flags.split(" ");
+    // Go through the list of flags and Set them (if possible).
+    const results = [];
+    for (const flag of flags) {
+      // Create a set to filter for flags the obj might already have.
+      const flagSet = new Set(tar?.data?.flags);
+      if (!flag.startsWith("!")) {
+        flagSet.add(this.isFlag(flag).name.toLowerCase());
+      } else {
+        flagSet.delete(this.isFlag(flag).name.slice(1).toLowerCase());
+      }
 
-    if (this.canEdit(en, tar)) {
-      // Split the flag string into an array
-      flags = flags.split(" ");
-      // Go through the list of flags and Set them (if possible).
-      const results = [];
-      for (flag of flags) {
-        if (!flag.startsWith("!")) {
-          const idx = this.flags.indexOf(flag.toLowerCase());
-        } else {
-          const idx = this.flags.indexOf(flag.slice(1).toLowerCase());
-        }
+      tar.data.flags = Array.from(flagSet);
 
-        if (idx !== -1) {
-          // Next check to see if obj1 has the permissions to set the flag.
-          if (this.hasFlags(en, this.flags[idx].lock)) {
-            // Create a set to filter for flags the obj might already have.
-            const flagSet = new Set(en?.data?.flags);
-            if (!flag.startsWith("!")) {
-              flagSet.add(this.flags[idx].name.toLowerCase());
-            } else {
-              flagSet.delete(this.flags[idx].name.slice(1).toLowerCase());
-            }
-
-            tar.data.flags = Array.from(flagSet);
-
-            if (!flag.startsWith("!")) {
-              // Add any included components to the data property of obj2.
-              tar.data = { ...tar.data, ...this.flags[idx]?.components };
-            } else {
-              // Else remove all components associated with the flag from obj2.
-              for (const comp of this.flags[idx]?.components) {
-                delete tar.data.components[comp];
-              }
-            }
-
-            // Update the db object.
-            await db
-              .update(tar._id, tar)
-              .catch((err) => results.push("Permission denied."));
-
-            // Add to the results object
-            results.push(
-              `Done. Flag (${this.flags[idx].name.toLowerCase()}) ${
-                flag.startsWith("!") ? "removed" : "set"
-              }`
-            );
-          } else {
-            results.push("Permission denied.");
-          }
-        } else {
-          results.push("Unknown flag");
+      if (!flag.startsWith("!")) {
+        tar.data = { ...this.isFlag(flag).components, ...tar.data };
+      } else {
+        for (const comp of this.isFlag(flag)?.components) {
+          delete tar.data.components[comp];
         }
       }
-      return results;
+
+      // Update the db object.
+      await db
+        .update(tar._id, tar)
+        .catch((err) => results.push("#-1 Server Error"));
+
+      // Add to the results object
+      results.push(
+        `Done. Flag (${this.isFlag(flag).name.toLowerCase()}) ${
+          flag.startsWith("!") ? "removed" : "set"
+        }`
+      );
     }
+    return results;
   }
 }
 

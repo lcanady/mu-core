@@ -5,6 +5,7 @@ const services = require("../services");
 const parser = require("./parser");
 const flags = require("./flags");
 const { db } = require("./database");
+const grid = require("./grid");
 
 class MU extends EventEmitter {
   constructor() {
@@ -14,6 +15,7 @@ class MU extends EventEmitter {
     this.parser = parser;
     this.flags = flags;
     this.db = db;
+    this.grid = grid(this);
   }
 
   configure(module) {
@@ -32,18 +34,26 @@ class MU extends EventEmitter {
   async start() {
     const players = await this.db.find({
       $where: function () {
-        return this.data?.flags.indexOf("player") !== -1;
+        return this.data?.flags?.indexOf("user") !== -1;
       },
     });
 
     const connected = players.filter((player) =>
-      player.data.flags.indexOf("connected")
+      player?.data?.flags?.indexOf("connected")
     );
 
     for (const plyr of connected) {
-      const idx = player.data.flags.indexOf("connected");
-      player.data.flags.splice(idx);
-      await this.db.update(player._id, player);
+      this.flags.setFlags(plyr._id, "!connected");
+    }
+
+    const rooms = await this.db.find({
+      $where: function () {
+        return this.data?.flags?.indexOf("room") !== -1;
+      },
+    });
+
+    if (rooms.length <= 0) {
+      console.log("[UrsaMU]: ", await this.grid.dig({ name: "Limbo" }));
     }
 
     const tcp = createServer(require("./tcpHandler")(this));

@@ -13,6 +13,36 @@ flags:
     code: c
     lock: immortal
 
+  - name: object
+    code: o
+    lock: immortal
+    components:
+      name: ""
+      desc: ""
+      contents: []
+      owner: ""
+      location: ""
+      moniker: ""
+
+  - name: user
+    code: U
+    lock: immortal
+    components:
+      alias: ""
+      password: ""
+
+  - name: room
+    code: R
+    lock: wizard+
+    components:
+      exits: []
+
+  - name: exit
+    code: E
+    lock: wizard+
+    components:
+      destination: ""
+
   - name: player
     code: P
     lock: wizard+
@@ -36,9 +66,3 @@ flags:
       mit: 0
       acc: 0
       eva: 0
-
-  - name: room
-    code: R
-    lock: wizard+
-    components:
-      exits: []
