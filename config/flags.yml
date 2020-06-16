@@ -1,0 +1,44 @@
+flags:
+  - name: immortal
+    code: i
+    lvl: 10
+    lock: immortal
+
+  - name: wizard
+    code: W
+    lock: immortal
+    lvl: 9
+
+  - name: connected
+    code: c
+    lock: immortal
+
+  - name: player
+    code: P
+    lock: wizard+
+    components:
+      hp: 20
+      en: 2
+      dmg: 1
+      mit: 0
+      acc: 0
+      eva: 0
+      sp:
+        current: 0
+        total: 0
+
+  - name: mob
+    code: M
+    lock: wizard+
+    components:
+      hp: 20
+      dmg: 1
+      mit: 0
+      acc: 0
+      eva: 0
+
+  - name: room
+    code: R
+    lock: wizard+
+    components:
+      exits: []

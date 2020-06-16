@@ -1,8 +1,16 @@
 const { db } = require("./database");
+const { readFileSync } = require("fs");
+const yml = require("yaml");
+const { resolve } = require("path");
 
 class Flags {
   constructor() {
     this.flags = [];
+    let flgs = readFileSync(resolve(__dirname, "../../config/flags.yml"), {
+      encoding: "utf-8",
+    });
+    flgs = yml.parse(flgs);
+    flgs.flags.forEach((flag) => this.flags.push(flag));
   }
 
   /**
@@ -36,24 +44,26 @@ class Flags {
    * @param {Object} obj The object to check.
    * @param {string} flags The flag list to check against.
    */
-  hasFlags(obj, flags) {
-    // If the user is logged into a character continue.
-    // Else return false.
-
+  async hasFlags(obj, flags) {
+    let en;
     const flgs = flags.split(" ");
+    if (obj._id) {
+      en = await db.get(obj._id);
+    }
     const results = [];
     flgs.forEach((flag) => {
       // If the flag starts with a bang, then we need to make sure the
       // data object DOESN'T have the flag.
       if (flag.startsWith("!")) {
         results.push(
-          obj?.data?.flags.indexOf(flag.slice(1).toLowerCase()) === -1 ||
-            !obj?.data?.flags
+          en?.data?.flags.indexOf(flag.slice(1).toLowerCase()) < 0 ||
+            en === undefined
+            ? true
+            : false
         );
-      } else if (flag.endsWith("+")) {
       } else {
         // Else check for the flag per normal.
-        results.push(obj?.data?.flags.indexOf(flag.toLowerCase()) !== -1);
+        results.push(en?.data?.flags.indexOf(flag.toLowerCase()) ?? false);
       }
     });
 
@@ -65,9 +75,14 @@ class Flags {
    * Check the bitlevel of an object.
    * @param {Object} Obj The user object to check the bit level for.
    */
-  bitLvl(obj) {
-    if (obj?.data?.flags) {
-      return obj.data.flags.reduce((acc, cur) => (acc += cur.lvl), 0);
+  async bitLvl(obj) {
+    let en;
+    if (obj._id) {
+      en = await db.get(obj._id);
+    }
+
+    if (en?.data?.flags) {
+      return en.data.flags.reduce((acc, cur) => (acc += cur.lvl), 0);
     } else {
       return -1;
     }
@@ -79,9 +94,17 @@ class Flags {
    * @param {Object} obj1
    * @param {Object} obj2
    */
-  canEdit(obj1, obj2) {
-    return this.bitLvl(obj1) > this.bitLvl(obj2) ||
-      obj2?.owner === obj1?.data._id
+  async canEdit(obj1, obj2) {
+    let en, tar;
+    if (obj1._id) {
+      en = await db.get(obj1._id);
+    }
+
+    if (obj2._id) {
+      tar = await db.get(obj2._id);
+    }
+
+    return this.bitLvl(en) > this.bitLvl(tar) || tar?.owner === en?.data._id
       ? true
       : false;
   }
@@ -93,7 +116,16 @@ class Flags {
    * @param {string} flags The flag string to check against.
    */
   async setFlags(obj1, obj2, flags) {
-    if (this.canEdit(obj1, obj2)) {
+    let en, tar;
+    if (obj1._id) {
+      en = await db.get(obj1._id);
+    }
+
+    if (obj2._id) {
+      tar = await db.get(obj2._id);
+    }
+
+    if (this.canEdit(en, tar)) {
       // Split the flag string into an array
       flags = flags.split(" ");
       // Go through the list of flags and Set them (if possible).
@@ -107,30 +139,30 @@ class Flags {
 
         if (idx !== -1) {
           // Next check to see if obj1 has the permissions to set the flag.
-          if (this.hasFlags(obj1, this.flags[idx].lock)) {
+          if (this.hasFlags(en, this.flags[idx].lock)) {
             // Create a set to filter for flags the obj might already have.
-            const flagSet = new Set(obj2.data?.flags);
+            const flagSet = new Set(en?.data?.flags);
             if (!flag.startsWith("!")) {
               flagSet.add(this.flags[idx].name.toLowerCase());
             } else {
               flagSet.delete(this.flags[idx].name.slice(1).toLowerCase());
             }
 
-            obj2.data.flags = Array.from(flagSet);
+            tar.data.flags = Array.from(flagSet);
 
             if (!flag.startsWith("!")) {
               // Add any included components to the data property of obj2.
-              obj2.data = { ...obj2.data, ...this.flags[idx]?.components };
+              tar.data = { ...tar.data, ...this.flags[idx]?.components };
             } else {
               // Else remove all components associated with the flag from obj2.
               for (const comp of this.flags[idx]?.components) {
-                delete obj2.data.components[comp];
+                delete tar.data.components[comp];
               }
             }
 
             // Update the db object.
             await db
-              .update(obj2._id, obj2)
+              .update(tar._id, tar)
               .catch((err) => results.push("Permission denied."));
 
             // Add to the results object

@@ -2,7 +2,7 @@ const { sha512 } = require("js-sha512");
 
 module.exports = (mu) => {
   mu.command({
-    name: "Register",
+    name: "create",
     pattern: /create\s+?(\w+)\s+?(\w+)/i,
     flags: "!connected",
     exec: async (ctx) => {
@@ -15,7 +15,7 @@ module.exports = (mu) => {
 
       const players = await mu.db.find({
         $where: function () {
-          return this?.data?.flags.indexOf("player") !== -1;
+          return this?.data?.flags.indexOf("immortal") !== -1;
         },
       });
 
@@ -30,18 +30,24 @@ module.exports = (mu) => {
             owner: id,
             location: "#0",
             components: {},
-            flags: players.length <= 0 ? ["connected, immortal"] : ["connect"],
+            contents: [],
+            flags:
+              players.length <= 0 ? ["connected", "immortal"] : ["connected"],
           },
         });
 
         if (char) {
-          mu.connections.set(ctx.user.id, char);
-          ctx.user.write("Welcome to UrsaMU!");
+          ctx.user._id = char._id;
+          mu.connections.push(ctx.user);
+          ctx.message = "Welcome to UrsaMU!";
+          ctx.user.write(ctx);
         } else {
-          ctx.user.write("Error creating your character.");
+          ctx.message = "Error creating your character.";
+          ctx.user.write(ctx);
         }
       } else {
-        ctx.user.write("That name is already taken, or is not a good name.");
+        ctx.message = "That name is already taken, or is not a good name.";
+        ctx.user.write(ctx);
       }
     },
   });

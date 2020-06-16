@@ -2,7 +2,7 @@ const { sha512 } = require("js-sha512");
 
 module.exports = (mu) => {
   mu.command({
-    name: "Register",
+    name: "connect",
     pattern: /connect\s+?(\w+)\s+?(\w+)/i,
     flags: "!connected",
     exec: async (ctx) => {
@@ -13,7 +13,8 @@ module.exports = (mu) => {
         },
       });
       if (char[0] && char[0].data.password === sha512(ctx.args[2])) {
-        mu.connections.set(ctx.user.id, char);
+        ctx.user._id = char[0]._id;
+        mu.connections.push(ctx.user);
         ctx.message = "Welcome to UrsaMU!";
         ctx.user.write(ctx);
       } else {
