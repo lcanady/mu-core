@@ -18,7 +18,7 @@ flags:
     lock: immortal
     components:
       name: ""
-      desc: ""
+      desc: "You see nothing special."
       contents: []
       owner: ""
       location: ""

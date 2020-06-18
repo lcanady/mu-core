@@ -95,5 +95,5 @@ class Database {
   }
 }
 
-module.exports.flags = new Database("flags.db");
+module.exports.channels = new Database("channels.db");
 module.exports.db = new Database("mu.db");
