@@ -9,8 +9,7 @@
       "request": "launch",
       "name": "Launch Program",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/index.js",
-      "autoAttachChildProcesses": true
+      "program": "${workspaceFolder}/index.js"
     }
   ]
 }

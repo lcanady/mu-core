@@ -68,6 +68,4 @@ class MU extends EventEmitter {
 }
 
 const mu = new MU();
-mu.start();
-
 module.exports = mu;
