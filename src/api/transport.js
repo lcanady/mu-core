@@ -14,7 +14,7 @@ module.exports = class User extends EventEmitter {
     this.socket.write(ctx.message + "\r\n");
   }
 
-  done(ctx) {
+  end(ctx) {
     this.socket.end(ctx.message + "\r\n");
   }
 };
