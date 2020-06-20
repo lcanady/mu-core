@@ -36,7 +36,7 @@ module.exports = (mu) => {
 
         if (char) {
           ctx.user._id = char._id;
-          ctx.id - char._id;
+          await mu.db.update(char._id, char);
 
           mu.connections.push(ctx.user);
           ctx.message = "Welcome to UrsaMU!";

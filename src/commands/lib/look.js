@@ -49,19 +49,25 @@ module.exports = (mu) => {
       // or nameFormat should instead.  TODO: Fill out stub for
       // nameFormat.
       desc += mu.grid.name(en, tar) + "\n";
-      desc += tar.data.desc + "\n" || "You see nothing sepecial.\n";
-      desc += `${mu.flags.hasFlags(tar, "user") ? "Carrying\n" : "Contents\n"}`;
+      desc += tar.data.desc || "You see nothing sepecial.";
 
-      // Get the contents of the target
-      let contents = [];
-      for (let item of tar.data.contents) {
-        contents.push(await mu.db.get(item));
+      // Check to see if the target has anything in it's inventory.
+      if (tar.data.contents.length > 0) {
+        desc += `${
+          mu.flags.hasFlags(tar, "user") ? "\nCarrying:\n" : "\nContents:\n"
+        }`;
+
+        // Get the contents of the target
+        let contents = [];
+        for (let item of tar.data.contents) {
+          contents.push(await mu.db.get(item));
+        }
+
+        desc += contents
+          .filter((item) => mu.grid.canSee(en, item))
+          .map((item) => mu.grid.name(en, item))
+          .join("\n");
       }
-
-      desc += contents
-        .filter((item) => mu.grid.canSee(en, item))
-        .map((item) => mu.grid.name(en, item))
-        .join("\n");
 
       ctx.message = desc;
       return ctx.user.write(ctx);
