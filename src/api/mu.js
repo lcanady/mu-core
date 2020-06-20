@@ -2,6 +2,7 @@ const { EventEmitter } = require("events");
 const { createServer } = require("net");
 const commands = require("../commands");
 const services = require("../services");
+const config = require("./config");
 const parser = require("./parser");
 const flags = require("./flags");
 const { db } = require("./database");
@@ -12,6 +13,7 @@ class MU extends EventEmitter {
     super();
     this.connections = [];
     this.commands = [];
+    this.config = config;
     this.parser = parser;
     this.flags = flags;
     this.db = db;
@@ -43,7 +45,7 @@ class MU extends EventEmitter {
     );
 
     for (const plyr of connected) {
-      this.flags.setFlags(plyr._id, "!connected");
+      this.flags.setFlags(plyr, "!connected");
     }
 
     const rooms = await this.db.find({
@@ -53,7 +55,7 @@ class MU extends EventEmitter {
     });
 
     if (rooms.length <= 0) {
-      console.log("[UrsaMU]: ", await this.grid.dig({ name: "Limbo" }));
+      console.log("[UrsaMU]:", (await this.grid.dig({ name: "Limbo" })).trim());
     }
 
     const tcp = createServer(require("./tcpHandler")(this));
@@ -61,9 +63,10 @@ class MU extends EventEmitter {
     // Configure commands
     this.configure(services);
     this.configure(commands);
-
     // Start TCP service
-    tcp.listen(4000, () => console.log("[UrsaMU]: TCP Server Started."));
+    tcp.listen(mu.config.tcp.port, () =>
+      console.log(`[UrsaMU]: TCP Server Started on Port ${mu.config.tcp.port}.`)
+    );
   }
 }
 

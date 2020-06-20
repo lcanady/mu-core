@@ -1,16 +1,16 @@
+const { db } = require("./database");
+
 module.exports = (mu) => {
   /**
    * Create a base database entity.
    * @param {string} enDbref
    * @param {string} name
    */
-  const baseObj = async (name) => {
-    const data = {
+  const baseObj = async (name) =>
+    await mu.db.create({
       _id: `#${await mu.db.count()}`,
       data: { name },
-    };
-    return await mu.db.create(data);
-  };
+    });
 
   /**
    * Create a base database object, based on the entered type:
@@ -32,7 +32,7 @@ module.exports = (mu) => {
         await mu.flags.setFlags(obj, "object room");
         break;
       case "exit":
-        await mu.flags.setFlags(pbj, "object exit");
+        await mu.flags.setFlags(obj, "object exit");
         break;
       default:
         throw new Error("Unknown Object Type");
@@ -41,24 +41,46 @@ module.exports = (mu) => {
   };
 
   class Gr1d {
-    async name(en, tar) {
+    name(en, tar) {
       if (en === "") en = tar;
-      const target = await mu.db.get(tar);
-      const enactor = await mu.db.get(en);
-
-      const edit = await mu.flags.canEdit(enactor, target);
-      return `${target.data.name}${edit ? "(" + target._id + ")" : ""}`;
+      const edit = mu.flags.canEdit(en, tar);
+      return `${tar.data.name}${
+        edit ? "(" + tar._id + mu.flags.code(tar.data.flags) + ")" : ""
+      }`;
     }
 
+    /**
+     * Create a new Database Object
+     * @param {Object} loc The own
+     * @param {string} name The name of the object to be  created.
+     * @param {string} type The type of object to make.
+     */
+    async create(name, loc, type = "thing") {
+      const thing = await entity(name, type);
+      thing.data.owner = loc._id;
+      thing.data.location = loc._id;
+      loc.data.contents.push(thing._id);
+      await mu.db.update(loc._id, loc);
+      return await mu.db.update(thing._id, thing);
+    }
+
+    /**
+     * Dig a new room.
+     * @param {Object} options Settings to be passed to setup a new room.
+     * @param {string} options.enDbref The dbref of the enactor.
+     * @param {string} options.name The name of the new room.
+     * @param {string} [options.toExit=] The exit to the new room.
+     * @param {string} [options.fromExit=] The exit back to the users
+     * current room.
+     */
     async dig({ enDbref = "", name, toExit = "", fromExit = "" }) {
       // First. create the room
       const results = [];
       const room = await entity(name, "room");
-      results.push(
-        `Room ${await this.name(enDbref, room._id).catch((err) =>
-          console.log(err)
-        )} dug.`
-      );
+      room.data.owner = room._id;
+      await mu.db.update(room._id, room);
+
+      results.push(`Room ${this.name(enDbref, room)} dug.`);
 
       // If ther's a to exit defined, create the exit and link it.
       if (toExit) {
@@ -94,6 +116,31 @@ module.exports = (mu) => {
         }
       }
       return results.join("\n");
+    }
+
+    /**
+     * Test if one object can 'see' another.
+     * @param {Object} en The looker
+     * @param {Object} tar The lookee
+     */
+    canSee(en, tar) {
+      // If it's a user and they're connected
+      if (
+        mu.flags.hasFlags(tar, "connected !dark|wizard+") &&
+        mu.flags.canEdit(en, tar)
+      ) {
+        // if the user is dark, but can be edited by the enactor
+        // make it visible to the enactor.
+        return true;
+      } else if (
+        mu.flags.hasFlags(tar, "object !dark|wizard+") &&
+        mu.flags.canEdit(en, tar)
+      ) {
+        // Else if it's an object that's not dark (or you're a wizard+!)
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 

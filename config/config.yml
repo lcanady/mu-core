@@ -1,2 +1,7 @@
+# TCP Server settings
 tcp:
   port: 4000
+
+# In game configuration
+game:
+  startingRoom: "#0"

@@ -27,16 +27,25 @@ class Flags {
    * Register a new flag with the MU.
    * @param {Flag} params
    */
-  flag({ name, code, lvl, lock, components }) {
+  flag({ name, code = "", lvl = 0, lock = "", components = "" }) {
     if (this.flags.indexOf(name.toLowerCase()) === -1) {
       this.flags.push({
         name,
-        code: code || "",
-        lvl: lvl || 0,
-        lock: lock || "",
+        code,
+        lvl,
+        lock,
         components,
       });
     }
+  }
+
+  code(flags) {
+    const results = [];
+    for (const flag of flags) {
+      results.push(this.flags.find((flg) => flg.name === flag));
+    }
+
+    return results.map((flag) => flag.code).join("");
   }
 
   isFlag(flag) {
@@ -48,12 +57,9 @@ class Flags {
    * @param {Object} obj The object to check.
    * @param {string} flags The flag list to check against.
    */
-  async hasFlags(obj, flags) {
-    let en;
+  hasFlags(obj, flags) {
     const flgs = flags.split(" ");
-    if (obj._id) {
-      en = await db.get(obj._id);
-    }
+
     const results = [];
 
     for (const flag of flgs) {
@@ -61,21 +67,30 @@ class Flags {
       // data object DOESN'T have the flag.
       if (flag.startsWith("!")) {
         results.push(
-          en?.data?.flags.indexOf(flag.slice(1).toLowerCase()) < 0 ||
-            en === undefined
+          obj?.data?.flags.indexOf(flag.slice(1).toLowerCase()) < 0 ||
+            obj.data === undefined
             ? true
             : false
         );
       } else if (flag.endsWith("+")) {
         const rec = this.flags.find((flg) => flg.name === flag.slice(-1));
         if (rec) {
-          return rec.lvl >= (await this.bitLvl(obj)) ? true : false;
+          return rec.lvl >= this.bitLvl(obj) ? true : false;
         } else {
           return false;
         }
+      } else if (flag.match(/.*\|.*/)) {
+        const flgs = flag.split("|");
+        for (const flg of flgs) {
+          results.push(this.hasFlags(obj, flg));
+        }
       } else {
         // Else check for the flag per normal.
-        results.push(en?.data?.flags.indexOf(flag.toLowerCase()) ?? false);
+        results.push(
+          obj?.data?.flags.indexOf(flag.toLowerCase()) !== -1 || undefined
+            ? true
+            : false
+        );
       }
     }
 
@@ -87,14 +102,14 @@ class Flags {
    * Check the bitlevel of an object.
    * @param {Object} Obj The user object to check the bit level for.
    */
-  async bitLvl(obj) {
+  bitLvl(obj) {
     let en;
-    if (obj._id) {
-      en = await db.get(obj._id);
-    }
 
-    if (en?.data?.flags) {
-      return en.data.flags.reduce((acc, cur) => (acc += cur.lvl), 0);
+    if (obj?.data?.flags) {
+      return obj.data.flags.reduce((acc, cur) => {
+        const flg = this.flags.find((flag) => flag.name === cur.toLowerCase());
+        return (acc += flg.lvl || 0);
+      }, 0);
     } else {
       return -1;
     }
@@ -106,17 +121,9 @@ class Flags {
    * @param {Object} obj1
    * @param {Object} obj2
    */
-  async canEdit(obj1, obj2) {
-    let en, tar;
-    if (obj1._id) {
-      en = await db.get(obj1._id);
-    }
-
-    if (obj2._id) {
-      tar = await db.get(obj2._id);
-    }
-
-    return this.bitLvl(en) > this.bitLvl(tar) || tar?.owner === en?.data._id
+  canEdit(obj1, obj2) {
+    return this.bitLvl(obj1) > this.bitLvl(obj2) ||
+      obj2.data?.owner === obj1._id
       ? true
       : false;
   }
@@ -127,44 +134,40 @@ class Flags {
    * @param {string} flags The flag string to check against.
    */
   async setFlags(obj, flags = "") {
-    let tar;
-    if (obj._id) {
-      tar = await db.get(obj._id);
-    }
-
     // Split the flag string into an array
     flags = flags.split(" ");
     // Go through the list of flags and Set them (if possible).
     const results = [];
-    for (const flag of flags) {
+    for (let flag of flags) {
       // Create a set to filter for flags the obj might already have.
-      const flagSet = new Set(tar?.data?.flags);
+      const flagSet = new Set(obj?.data?.flags);
       if (!flag.startsWith("!")) {
         flagSet.add(this.isFlag(flag).name.toLowerCase());
       } else {
-        flagSet.delete(this.isFlag(flag).name.slice(1).toLowerCase());
+        flagSet.delete(this.isFlag(flag.slice(1)).name.toLowerCase());
       }
 
-      tar.data.flags = Array.from(flagSet);
+      obj.data.flags = Array.from(flagSet);
 
       if (!flag.startsWith("!")) {
-        tar.data = { ...this.isFlag(flag).components, ...tar.data };
+        obj.data = { ...this.isFlag(flag).components, ...obj.data };
       } else {
-        for (const comp of this.isFlag(flag)?.components) {
-          delete tar.data.components[comp];
+        const flg = flag.slice(1);
+        for (const comp in this.isFlag(flg)?.components) {
+          delete obj.data.components[comp];
         }
       }
 
       // Update the db object.
       await db
-        .update(tar._id, tar)
-        .catch((err) => results.push("#-1 Server Error"));
+        .update(obj._id, obj)
+        .catch(() => results.push("#-1 Server Error"));
 
       // Add to the results object
       results.push(
-        `Done. Flag (${this.isFlag(flag).name.toLowerCase()}) ${
-          flag.startsWith("!") ? "removed" : "set"
-        }`
+        `Done. Flag (${this.isFlag(
+          flag.startsWith("!") ? flag.slice(1) : flag
+        ).name.toLowerCase()}) ${flag.startsWith("!") ? "removed" : "set"}`
       );
     }
     return results;

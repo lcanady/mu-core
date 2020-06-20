@@ -20,6 +20,7 @@ flags:
       name: ""
       desc: "You see nothing special."
       contents: []
+      exites: []
       owner: ""
       location: ""
       moniker: ""
@@ -31,17 +32,15 @@ flags:
       alias: ""
       password: ""
 
-  - name: room
-    code: R
-    lock: wizard+
-    components:
-      exits: []
-
   - name: exit
     code: E
     lock: wizard+
     components:
       destination: ""
+
+  - name: room
+    code: R
+    lock: wizard+
 
   - name: player
     code: P
