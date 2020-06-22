@@ -7,5 +7,5 @@ Welcome to:
 |       ||   |  | | _____| ||   _   || ||_|| ||       |
 |_______||___|  |_||_______||__| |__||_|   |_||_______|
 
-Type 'Create <name> <password>' to create a new character.
-Type 'connect <name> <password>' to login.
+Type 'Create <name> <password>' to create a new avatar.
+Type 'connect <name> <password>' to log into an existing avatar.

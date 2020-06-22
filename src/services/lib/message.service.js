@@ -2,7 +2,7 @@ module.exports = (mu) => {
   mu.parser.service({
     name: "message",
     exec: async (ctx) => {
-      const en = (await mu.db.get(ctx?._id)) || {};
+      const en = (await mu.db.get(mu.connections.get(ctx.id))) || {};
       for (const command of mu.commands) {
         // Check to see if the ctx message matches the command.
         const match = command.pattern.exec(ctx.message);
@@ -16,9 +16,12 @@ module.exports = (mu) => {
       }
       // No match, if the user is logged in send a 'huh' message.
       // If not send nothing.
-      if (mu.flags.hasFlags(en, "connected") && !ctx.matched) {
+      if (
+        mu.flags.hasFlags(en, "connected") &&
+        !ctx.matched &&
+        ctx.message.trim() !== ""
+      ) {
         ctx.message = "Huh? Type help for help.";
-        ctx.user.write(ctx);
       } else {
         ctx.message = "";
       }

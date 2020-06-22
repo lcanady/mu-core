@@ -13,15 +13,15 @@ module.exports = (mu) => {
         },
       });
       if (char[0] && char[0].data.password === sha512(ctx.args[2])) {
-        ctx.user._id = char[0]._id;
+        ctx._id = char[0]._id;
         await mu.flags.setFlags(char[0], "connected");
-        mu.connections.push(ctx.user);
-        ctx.message = "Welcome to UrsaMU!";
-        ctx.user.write(ctx);
+        mu.connections.set(ctx.id, char[0]._id);
+        const look = await mu.force("look", ctx);
+        ctx.message = "Welcome to UrsaMU!\n" + look.message;
       } else {
-        ctx.message = "Unable to authenticate";
-        ctx.user.write(ctx);
+        ctx.message = "Authentication failed";
       }
+      return ctx;
     },
   });
 };

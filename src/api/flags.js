@@ -87,9 +87,7 @@ class Flags {
       } else {
         // Else check for the flag per normal.
         results.push(
-          obj?.data?.flags.indexOf(flag.toLowerCase()) !== -1 || undefined
-            ? true
-            : false
+          obj?.data?.flags.indexOf(flag.toLowerCase()) > -1 ? true : false
         );
       }
     }

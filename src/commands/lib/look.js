@@ -4,7 +4,7 @@ module.exports = (mu) => {
     pattern: /^(?:l[ook]+|l)(?:\s+(.*))?/i,
     flags: "connected",
     exec: async (ctx) => {
-      const en = await mu.db.get(ctx.user._id);
+      const en = await mu.db.get(mu.connections.get(ctx.id));
       let tar,
         desc = "";
 
@@ -70,7 +70,7 @@ module.exports = (mu) => {
       }
 
       ctx.message = desc;
-      return ctx.user.write(ctx);
+      return ctx;
     },
   });
 };
