@@ -2,14 +2,14 @@ const ipc = require("node-ipc");
 const { createServer } = require("net");
 const config = require("./src/api/config");
 const User = require("./src/api/transport");
-const { exec } = require("child_process");
+const { exec, spawn } = require("child_process");
 const { readFile } = require("fs");
 const { resolve } = require("path");
 
 ipc.config.id = "ursamu";
 ipc.config.retry = 1500;
 
-// const parser = exec("node --inspect engine.js");
+let parser = spawn("node", ["engine.js"]);
 let connections = [];
 let avatars;
 // Create an inter-process communication channel.
@@ -71,6 +71,25 @@ ipc.serve(() => {
     if (avatars) ipc.server.emit(socket, "avatars", JSON.stringify(avatars));
     ipc.log("Parser connected.");
   });
+
+  ipc.server.on("reboot", (ids) => {
+    ids = ids.split(",");
+    const users = connections.filter((conn) => ids.indexOf(conn.id) !== -1);
+    users.forEach((user) =>
+      user.write({ message: "Game: Reboot initiated, please wait ..." })
+    );
+
+    parser.kill();
+    parser.on("close", () => {
+      parser = spawn("node", ["engine.js"]);
+    });
+
+    users.forEach((user) => user.write({ message: "Game: Reboot completed." }));
+  });
 });
 
 ipc.server.start();
+
+process.on("exit", () => {
+  parser.kill();
+});

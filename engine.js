@@ -29,11 +29,8 @@ ipc.connectTo("ursamu", () => {
       mu.connections.set(socket, avatar);
     }
   });
-
-  // I put this in the connecTo handler because I'm honestly only intersted
-  // in saving connections if we've connected to the IPC.
-  process.on("SIGINT", () => {
+  process.on("SIGTERM", () => {
     ipc.of.ursamu.emit("shutdown", JSON.stringify(Array.from(mu.connections)));
-    process.exit(0);
+    process.kill();
   });
 });

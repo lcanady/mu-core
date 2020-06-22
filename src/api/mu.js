@@ -6,7 +6,6 @@ const parser = require("./parser");
 const flags = require("./flags");
 const { db } = require("./database");
 const grid = require("./grid");
-const send = require("./broadcast");
 
 class MU extends EventEmitter {
   constructor(ipc) {
@@ -19,7 +18,6 @@ class MU extends EventEmitter {
     this.flags = flags;
     this.db = db;
     this.grid = grid(this);
-    this.send = send(this);
   }
 
   configure(module) {

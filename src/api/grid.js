@@ -133,7 +133,7 @@ module.exports = (mu) => {
         // make it visible to the enactor.
         return true;
       } else if (
-        mu.flags.hasFlags(tar, "object !dark|wizard+") &&
+        mu.flags.hasFlags(tar, "!user !dark|wizard+") &&
         mu.flags.canEdit(en, tar)
       ) {
         // Else if it's an object that's not dark (or you're a wizard+!)
