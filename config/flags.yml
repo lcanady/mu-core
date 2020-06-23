@@ -47,13 +47,15 @@ flags:
     lock: wizard+
     components:
       hp: 20
+      mp: 10
       en: 2
       dmg: 1
       mit: 0
       acc: 0
       eva: 0
-      sp:
-        current: 0
+      mag: 0
+    sp:
+        current : 0
         total: 0
 
   - name: mob
@@ -61,7 +63,338 @@ flags:
     lock: wizard+
     components:
       hp: 20
+      mp: 10
+      sp: 20
       dmg: 1
       mit: 0
       acc: 0
       eva: 0
+      mag: 0
+      type: []
+
+  - name: mount
+    code: Mo
+    lock: wizard+
+    components:
+      hp: 20
+      mp: 10
+      sp: 20
+      spd: 1
+      dmg: 0
+      mit: 0
+      acc: 0
+      eva: 0
+      mag: 0
+      type: []
+      flight: 0
+      owner: “”
+      riders: []
+    xp: 
+         current: 0
+         total: 0
+
+  - name: familiar
+    code: Fa
+    lock: wizard+
+    components:
+      hp: 20
+      mp: 20
+      sp: 20
+      dmg: 0
+      mit: 0
+      acc: 0
+      eva: 0
+      mag: 0
+      type: 0
+      owner: “”
+    xp: 
+         current: 0
+         total: 0
+
+- name: weapon
+  code: We
+  lock: wizard+
+  components:
+    dmg: 1
+    dur: 1
+    value: 0
+    decor: []
+    quality: 0
+    ingredients: 0
+
+- name: armor
+  code: Ar
+  lock: wizard+
+  components:
+    armor: 1
+    dur: 1
+    value: 0
+    quality: 0
+    decor: []
+    wearLocation:
+    ingredients: [] 
+
+- name: apparel
+  code: Ap
+  lock: wizard+
+  components:
+    material: 
+    dur: 1
+    value: 0
+    quality: 0
+    wearLocation: []
+    ingredients: []
+    
+- name: org
+  code: O
+  lock: wizard+
+  components:
+    org: “” 
+    rank: “”
+    position: “”
+       job: “”
+
+- name: door
+  code: Do
+  lock: wizard+
+  components:
+    open: 1
+    locked: 0
+    sealed: 0
+    blocked: 0
+    guarded: 0
+ 
+- name: container
+  code: CO
+  lock: wizard+
+  components:
+    open: 1
+    locked: 0
+    wearable: 0
+    sealed: 0
+
+- name: inside
+  code: In
+  lock: wizard+
+  components:
+    construction: 0
+    dark: 0
+    dungeon: 0
+    cave: 0 
+    house: 0
+    rain: 0
+    air: 0
+    space: 0
+    season:
+       summer: 0
+       spring: 0
+       fall: 0
+       winter: 0
+
+- name: outside
+  code: out
+  lock: wizard+
+  components:
+    construction: 0
+    dark: 0
+    weather: 0
+    forest: 0
+    swamp: 0
+    mountain: 0
+    volcano: 0
+    water: 0 
+    village: 0 
+    snow: 0
+    rain: 0
+    city: 0 
+    island: 0
+    air: 0
+    space: 0
+    season:
+       summer: 0
+       spring: 0
+       fall: 0
+       winter: 0
+
+- name: tool
+  code: Tl
+  lock: wizard+
+  components:
+    mining: 0
+    magic: 0
+    tailor: 0
+    blacksmith: 0 
+    culinary: 0 
+    leather: 0
+    alchemy: 0
+    agriculture: 0
+    construction: 0
+    art: 0
+    bonus: 
+       base: 0
+       tempMod: 0
+
+- name: ingredient 
+  code: ing
+  lock: wizard+
+  components: 
+     type: “”
+     wgt: 0
+     qty: 1
+     qual: 1
+     properties: []
+     cost: 0
+
+- name: food
+  code: foo
+  lock: wizard+
+  components: 
+     qual: 0
+     qty: 0 
+     buff: []
+     debuff: []
+     ingredients: []
+     properties: []
+     cost: 0
+
+- name: drink
+  code: dri
+  lock: wizard+
+  components: 
+     qual: 0
+     qty: 0 
+     buff: []
+     debuff: []
+     ingredients: []
+     properties: []
+     cost: 0    
+
+- name: stunned
+  code: stn 
+  lock: wizard+
+  components: 
+     stnTime: 0
+     stnType: “”
+     
+- name: poisoned
+  code: poi
+  lock: wizard+
+  components: 
+     poiTime: 0
+     poiType: “”
+     poiDmg: []
+     poiCure: []
+
+- name: burned
+  code: brn
+  lock: wizard+
+  components: 
+     brnTime: 0
+     brnType: “”
+     brnDmg: []
+
+- name: asleep
+  code: slp
+  lock: wizard+
+  components: 
+     slpTime: 0
+     slpType: “”
+  
+
+- name: confused
+  code: cnf
+  lock: wizard+
+  components: 
+     cnfTime: 0
+     cnfType: “”
+     cnfDmg: []
+
+- name: paralyzed
+  code: prl
+  lock: wizard+
+  components: 
+     prlTime: 0
+     prlType: “”
+     prlDmg: []
+
+- name: diseased
+  code: dis
+  lock: wizard+
+  components: 
+     disContagious: 0
+     disType: “”
+     disDmg: []
+     disCure: []
+
+- name: fear
+  code: fea
+  lock: wizard+
+  components: 
+     fearTime: 0
+     feaLevel: “”
+     feaDistance: []
+
+- name: silenced
+  code: sil
+  lock: wizard+
+  components: 
+     silTime: 0
+     silType: “”
+  
+
+- name: blinded
+  code: bli
+  lock: wizard+
+  components: 
+     bliTime: 0
+     bliType: “”
+   
+- name: bleeding
+  code: ble
+  lock: wizard+
+  components: 
+     bleTime: 0
+     bleType: “”
+     bleDmg: []
+
+- name: cursed
+  code: crs
+  lock: wizard+
+  components: 
+     crsTime: 0
+     crsType: “”
+     craDmg: []
+
+- name: delayed
+  code: dly
+  lock: wizard+
+  components: 
+     dlyTime: 0
+     dlyType: “”
+   
+- name: tumbled
+  code: tmb
+  lock: wizard+
+  components: 
+     tmbTime: 0
+     tmbType: “”
+    
+- name: frozen
+  code: frz
+  lock: wizard+
+  components: 
+     frzTime: 0
+     frzType: “”
+     frzDmg: []
+
+
+
+
+
+
+
+
+
+
+
+
