@@ -13,12 +13,14 @@ module.exports = (mu) => {
         },
       });
 
+      // Check to see if there's already an immortal avatar made.
       const players = await mu.db.find({
         $where: function () {
           return this?.data?.flags?.indexOf("immortal") !== (-1 || undefined);
         },
       });
 
+      // Get the starting room of the game, or 'limbo' if not defined.
       const room = await mu.db.get(mu.config.game.startRoom || "#0");
 
       // Name not in use! Make a db record!
@@ -29,25 +31,43 @@ module.exports = (mu) => {
         char.data.location = mu.config.game.startRoom || "#0";
 
         if (players.length <= 0) {
-          char = await mu.flags.setFlags(char, "connected immortal");
+          await mu.flags.setFlags(char, "connected immortal");
         } else {
-          char = await mu.flags.setFlags(char, "connected");
+          await mu.flags.setFlags(char, "connected");
         }
 
         if (char) {
-          ctx.user._id = char._id;
           await mu.db.update(char._id, char);
+          console.log("char", char);
+          // Let Major know that the socket is authenticated.
+          mu.ipc.of.ursamu.emit(
+            "authenticated",
+            JSON.stringify([char._id, ctx.id])
+          );
 
-          mu.connections.push(ctx.user);
-          ctx.message = "Welcome to UrsaMU!";
-          ctx.user.write(ctx);
+          // Send startup commannds
+          mu.ipc.of.ursamu.emit(
+            "broadcast",
+            JSON.stringify({
+              ids: [char._id],
+              message: "Link established ...\nWelcom to World Seed Online.",
+            })
+          );
+
+          // Force the character to run the look command
+          mu.force(char, "look", ctx);
         } else {
-          ctx.message = "Error creating your character.";
-          ctx.user.write(ctx);
+          mu.ipc.of.ursamu.emit(
+            "boradcast",
+            JSON.stringify({
+              ids: [char._id],
+              message: "Error creating your character!",
+            })
+          );
         }
       } else {
-        ctx.message = "That name is already taken, or is not a good name.";
-        ctx.user.write(ctx);
+        ctx.message = "That handle is already in use! Please choose another.";
+        return ctx;
       }
     },
   });

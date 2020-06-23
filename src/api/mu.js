@@ -1,5 +1,4 @@
 const { EventEmitter } = require("events");
-const { createServer } = require("net");
 const commands = require("../commands");
 const services = require("../services");
 const config = require("./config");
@@ -7,19 +6,17 @@ const parser = require("./parser");
 const flags = require("./flags");
 const { db } = require("./database");
 const grid = require("./grid");
-const send = require("./broadcast");
-
 class MU extends EventEmitter {
-  constructor() {
+  constructor(ipc) {
     super();
-    this.connections = [];
+    this.connections = new Map();
     this.commands = [];
+    this.ipc = ipc;
     this.config = config;
     this.parser = parser;
     this.flags = flags;
     this.db = db;
     this.grid = grid(this);
-    this.send = send(this);
   }
 
   configure(module) {
@@ -32,24 +29,7 @@ class MU extends EventEmitter {
     return this;
   }
 
-  /**
-   * Start the main data transports
-   */
   async start() {
-    const players = await this.db.find({
-      $where: function () {
-        return this.data?.flags?.indexOf("user") !== -1;
-      },
-    });
-
-    const connected = players.filter((player) =>
-      player?.data?.flags?.indexOf("connected")
-    );
-
-    for (const plyr of connected) {
-      this.flags.setFlags(plyr, "!connected");
-    }
-
     const rooms = await this.db.find({
       $where: function () {
         return this.data?.flags?.indexOf("room") !== -1;
@@ -57,20 +37,37 @@ class MU extends EventEmitter {
     });
 
     if (rooms.length <= 0) {
-      console.log("[UrsaMU]:", (await this.grid.dig({ name: "Limbo" })).trim());
+      console.log("[UrsaMU]:", await this.grid.dig({ name: "Limbo" }));
     }
 
-    const tcp = createServer(require("./tcpHandler")(this));
-
     // Configure commands
-    this.configure(services);
-    this.configure(commands);
-    // Start TCP service
-    tcp.listen(mu.config.tcp.port, () =>
-      console.log(`[UrsaMU]: TCP Server Started on Port ${mu.config.tcp.port}.`)
+    this.configure(services).configure(commands);
+  }
+
+  async force(en, cmd, ctx) {
+    return await this.parser.process({
+      id: ctx.id,
+      _id: en._id || ctx._id,
+      command: "message",
+      message: cmd,
+    });
+  }
+
+  async shutdown() {
+    const users = await this.db.find({
+      $where: function () {
+        return this.data?.flags?.indexOf("user") !== -1;
+      },
+    });
+
+    const connected = users.filter((user) =>
+      user?.data?.flags?.indexOf("connected")
     );
+
+    for (const plyr of connected) {
+      this.flags.setFlags(plyr, "!connected");
+    }
   }
 }
 
-const mu = new MU();
-module.exports = mu;
+module.exports = MU;

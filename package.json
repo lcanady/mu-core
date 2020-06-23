@@ -1,18 +1,22 @@
 {
-  "name": "mu-core",
-  "version": "1.0.0",
+  "name": "@ursamu/core",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "MUSH",
+    "MUD",
+    "Server"
+  ],
+  "author": "Lemuel Canady, Jr",
+  "license": "MIT",
   "dependencies": {
     "js-sha512": "^0.8.0",
     "nedb": "^1.8.0",
-    "node-telnet": "^1.0.1",
+    "node-ipc": "^9.1.1",
     "pegjs": "^0.10.0",
     "uuid": "^8.1.0",
     "ws": "^7.3.0",

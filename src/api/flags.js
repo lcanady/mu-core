@@ -2,6 +2,7 @@ const { db } = require("./database");
 const { readFileSync } = require("fs");
 const yml = require("yaml");
 const { resolve } = require("path");
+const { cpuUsage } = require("process");
 
 class Flags {
   constructor() {
@@ -59,13 +60,40 @@ class Flags {
    */
   hasFlags(obj, flags) {
     const flgs = flags.split(" ");
-
     const results = [];
 
     for (const flag of flgs) {
       // If the flag starts with a bang, then we need to make sure the
       // data object DOESN'T have the flag.
-      if (flag.startsWith("!")) {
+      const combined = flag.match(/.*\|.*/);
+      if (combined && combined.length > 0) {
+        const tmpRes = [];
+        const fls = flag.split("|");
+        for (const f of fls) {
+          if (f.startsWith("!")) {
+            tmpRes.push(
+              obj?.data?.flags.indexOf(f.slice(1).toLowerCase()) < 0 ||
+                obj.data === undefined
+                ? true
+                : false
+            );
+          } else if (f.endsWith("+")) {
+            const ed = f.slice(0, f.length - 1);
+            const rec = this.flags.find((flg) => flg.name === ed);
+            if (rec) {
+              tmpRes.push(rec.lvl >= this.bitLvl(obj) ? true : false);
+            } else {
+              tmpRes.push(false);
+            }
+          } else {
+            // Else check for the flag per normal.
+            tmpRes.push(
+              obj?.data?.flags.indexOf(f.toLowerCase()) > -1 ? true : false
+            );
+          }
+        }
+        results.push(tmpRes.indexOf(true) >= 0 ? true : false);
+      } else if (flag.startsWith("!")) {
         results.push(
           obj?.data?.flags.indexOf(flag.slice(1).toLowerCase()) < 0 ||
             obj.data === undefined
@@ -73,23 +101,18 @@ class Flags {
             : false
         );
       } else if (flag.endsWith("+")) {
-        const rec = this.flags.find((flg) => flg.name === flag.slice(-1));
+        const rec = this.flags.find(
+          (flg) => flg.name === flag.slice(0, flag.length - 1)
+        );
         if (rec) {
-          return rec.lvl >= this.bitLvl(obj) ? true : false;
+          results.push(rec.lvl >= this.bitLvl(obj) ? true : false);
         } else {
-          return false;
-        }
-      } else if (flag.match(/.*\|.*/)) {
-        const flgs = flag.split("|");
-        for (const flg of flgs) {
-          results.push(this.hasFlags(obj, flg));
+          results.push(false);
         }
       } else {
         // Else check for the flag per normal.
         results.push(
-          obj?.data?.flags.indexOf(flag.toLowerCase()) !== -1 || undefined
-            ? true
-            : false
+          obj?.data?.flags.indexOf(flag.toLowerCase()) > -1 ? true : false
         );
       }
     }

@@ -35,7 +35,7 @@ class Parser {
   async process(ctx) {
     for (const service of this.services) {
       if (service.name === ctx.command.toLowerCase()) {
-        return (ctx = await service.exec(ctx));
+        return await service.exec(ctx);
       }
     }
   }
