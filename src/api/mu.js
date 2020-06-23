@@ -6,7 +6,6 @@ const parser = require("./parser");
 const flags = require("./flags");
 const { db } = require("./database");
 const grid = require("./grid");
-
 class MU extends EventEmitter {
   constructor(ipc) {
     super();
@@ -42,13 +41,13 @@ class MU extends EventEmitter {
     }
 
     // Configure commands
-    this.configure(services);
-    this.configure(commands);
+    this.configure(services).configure(commands);
   }
 
-  async force(cmd, ctx) {
+  async force(en, cmd, ctx) {
     return await this.parser.process({
       id: ctx.id,
+      _id: en._id || ctx._id,
       command: "message",
       message: cmd,
     });

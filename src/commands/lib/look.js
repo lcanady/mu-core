@@ -4,7 +4,7 @@ module.exports = (mu) => {
     pattern: /^(?:l[ook]+|l)(?:\s+(.*))?/i,
     flags: "connected",
     exec: async (ctx) => {
-      const en = await mu.db.get(mu.connections.get(ctx.id));
+      const en = await mu.db.get(ctx._id);
       let tar,
         desc = "";
 
@@ -69,8 +69,13 @@ module.exports = (mu) => {
           .join("\n");
       }
 
-      ctx.message = desc;
-      return ctx;
+      mu.ipc.of.ursamu.emit(
+        "broadcast",
+        JSON.stringify({
+          ids: [en._id],
+          message: desc,
+        })
+      );
     },
   });
 };

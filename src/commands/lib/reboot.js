@@ -4,8 +4,8 @@ module.exports = (mu) => {
     flags: "connected immortal",
     pattern: /^@reboot/i,
     exec: async (ctx) => {
-      const connections = Array.from(mu.connections.keys()).join(",");
-      mu.ipc.of.ursamu.emit("reboot", connections);
+      const en = await mu.db.get(ctx._id);
+      mu.ipc.of.ursamu.emit("reboot", en.data.name);
       ctx.message = "";
       return ctx;
     },

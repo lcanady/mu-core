@@ -2,7 +2,7 @@ module.exports = (mu) => {
   mu.parser.service({
     name: "message",
     exec: async (ctx) => {
-      const en = (await mu.db.get(mu.connections.get(ctx.id))) || {};
+      const en = (await mu.db.get(ctx._id)) || {};
       for (const command of mu.commands) {
         // Check to see if the ctx message matches the command.
         const match = command.pattern.exec(ctx.message);
@@ -22,11 +22,8 @@ module.exports = (mu) => {
         ctx.message.trim() !== ""
       ) {
         ctx.message = "Huh? Type help for help.";
-      } else {
-        ctx.message = "";
+        return ctx;
       }
-      // Return the context object.
-      return ctx;
     },
   });
 };

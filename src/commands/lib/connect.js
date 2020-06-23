@@ -12,16 +12,37 @@ module.exports = (mu) => {
           return this.data.name.toLowerCase() === ctx.args[1].toLowerCase();
         },
       });
+
+      // If the character exists and the password matches ...
       if (char[0] && char[0].data.password === sha512(ctx.args[2])) {
-        ctx._id = char[0]._id;
+        // Emit the IDs to Major to be added to the authenticated list.
+        mu.ipc.of.ursamu.emit(
+          "authenticated",
+          JSON.stringify([char[0]._id, ctx.id])
+        );
+
+        // Set connection flags
         await mu.flags.setFlags(char[0], "connected");
-        mu.connections.set(ctx.id, char[0]._id);
-        const look = await mu.force("look", ctx);
-        ctx.message = "Welcome to UrsaMU!\n" + look.message;
+        ctx._id = char[0]._id;
+
+        // Run login commands.
+        mu.ipc.of.ursamu.emit(
+          "broadcast",
+          JSON.stringify({
+            ids: [char[0]._id],
+            message: "Link established ....\nWelcom to World Seed Online.",
+          })
+        );
+        mu.force(char[0], "look", ctx);
       } else {
-        ctx.message = "Authentication failed";
+        mu.ipc.of.ursamu.emit(
+          "broadcast",
+          [char[0]._id],
+          JSON.stringify({
+            message: "Authentication failed.",
+          })
+        );
       }
-      return ctx;
     },
   });
 };

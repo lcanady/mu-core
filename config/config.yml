@@ -1,6 +1,6 @@
 # TCP Server settings
 tcp:
-  port: 4000
+  port: 4201
 
 # In game configuration
 game:
