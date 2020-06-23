@@ -9,7 +9,7 @@ const { resolve } = require("path");
 ipc.config.id = "ursamu";
 ipc.config.retry = 1500;
 
-// let parser = spawn("node", ["--inspect", "engine.js"]);
+let parser = spawn("node", ["--inspect", "./src/engine.js"]);
 let connections = [];
 let avatars = new Map();
 
@@ -75,10 +75,21 @@ ipc.serve(() => {
   // Send a message to an array of sockets.
   ipc.server.on("broadcast", (msg) => {
     msg = JSON.parse(msg);
-    msg.ids.forEach((id) => {
-      const user = getUser(id);
-      if (user) user.write({ message: msg.message });
-    });
+
+    // If a list of ids is given, send ot that list
+    if (msg.id) {
+      msg.ids.forEach((id) => {
+        const user = getUser(id);
+        if (user) user.write({ message: msg.message });
+      });
+    } else {
+      // Else send the message to every connected client.
+      connections.forEach((user) => user.write({ message: msg.message }));
+    }
+  });
+
+  ipc.server.on("shutdown", (name) => {
+    process.exit(0);
   });
 
   // When a socket quits, send a mess age and disconnect the socket.
@@ -101,7 +112,8 @@ ipc.serve(() => {
 
   // When a Reboot call is made, kill the engine process.
   ipc.server.on("reboot", (name) => {
-    const users = Array.from(avatars.keys())
+    let users = Array.from(avatars.keys());
+    users
       .map((id) => getUser(avatars.get(id)))
       .forEach((user) =>
         user.write({
@@ -109,10 +121,13 @@ ipc.serve(() => {
         })
       );
 
-    // parser.kill();
-    // parser = spawn("node", ["--inspect", "engine.js"]);
+    console.log(users);
+    parser.kill();
+    parser = spawn("node", ["--inspect", "./src/engine.js"]);
 
-    users.forEach((user) => user.write({ message: "Game: Reboot completed." }));
+    users
+      .map((id) => getUser(avatars.get(id)))
+      .forEach((user) => user.write({ message: "Game: Reboot completed." }));
   });
 });
 
