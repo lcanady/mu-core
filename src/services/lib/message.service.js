@@ -10,6 +10,8 @@ module.exports = (mu) => {
 
         // If there's a match make sure the ctx user
         if (match && mu.flags.hasFlags(en, command.flags)) {
+          const en = await mu.db.get(ctx._id);
+          ctx.en = en;
           // Run the command and return the ctx object.
           return command.exec(ctx);
         }

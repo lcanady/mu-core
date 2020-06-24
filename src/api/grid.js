@@ -125,16 +125,53 @@ module.exports = (mu) => {
      */
     canSee(en, tar) {
       // If it's a user and they're connected
-      if (mu.flags.hasFlags(tar, "connected !dark|wizard+")) {
+      if (
+        mu.flags.hasFlags(tar, "connected !dark") ||
+        mu.flags.hasFlags(en, "wizard+")
+      ) {
         // if the user is dark, but can be edited by the enactor
         // make it visible to the enactor.
         return true;
-      } else if (mu.flags.hasFlags(tar, "!user !dark|wizard+")) {
+      } else if (
+        mu.flags.hasFlags(tar, "!user !dark|wizard+") ||
+        mu.flags.hasFlags(en, "wizard+")
+      ) {
         // Else if it's an object that's not dark (or you're a wizard+!)
         return true;
       } else {
         return false;
       }
+    }
+
+    async target(en, tar) {
+      // Evaluate to figure out the value of `tar`.
+      tar = tar.trim();
+      if (tar) {
+        switch (tar.toLowerCase()) {
+          case "here":
+            tar = await mu.db.get(en.data.location);
+            break;
+          case "me":
+            tar = en;
+            break;
+          default:
+            const results = await mu.db.find({
+              $where: function () {
+                return this.data.name.toLowerCase() === tar.toLowerCase();
+              },
+            });
+            if (results.length === 1) {
+              tar = results[0];
+            } else if (results.length > 1) {
+              throw new Error("I don't know which one you mean.");
+            } else {
+              throw new Error("I can't find that.");
+            }
+        }
+      } else {
+        tar = await mu.db.get(en?.data?.location);
+      }
+      return tar;
     }
   }
 

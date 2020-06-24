@@ -8,24 +8,12 @@ module.exports = (mu) => {
       const room = await mu.db.get(en.data.location);
       const contents = room.data.contents;
 
-      mu.ipc.of.ursamu.emit(
-        "broadcast",
-        JSON.stringify({
-          ids: contents.filter((item) => item !== en._id),
-          message: `${en.data.name} says, "${ctx.args[1]}"`,
-        })
+      mu.send.to(
+        contents.filter((item) => item !== en._id),
+        `${en.data.name} says, "${ctx.args[1]}%cn"`
       );
 
-      mu.ipc.of.ursamu.emit(
-        "broadcast",
-        JSON.stringify({
-          ids: [en._id],
-          message: `You say "${ctx.args[1]}"`,
-        })
-      );
-
-      ctx.message = "";
-      return ctx;
+      mu.send.to([en._id], `You say "${ctx.args[1]}%cn"`);
     },
   });
 };

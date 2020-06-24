@@ -105,7 +105,8 @@ class Flags {
           (flg) => flg.name === flag.slice(0, flag.length - 1)
         );
         if (rec) {
-          results.push(rec.lvl >= this.bitLvl(obj) ? true : false);
+          console.log(this.bitLvl(obj));
+          results.push(rec.lvl <= this.bitLvl(obj) ? true : false);
         } else {
           results.push(false);
         }
@@ -131,7 +132,8 @@ class Flags {
     if (obj?.data?.flags) {
       return obj.data.flags.reduce((acc, cur) => {
         const flg = this.flags.find((flag) => flag.name === cur.toLowerCase());
-        return (acc += flg.lvl || 0);
+        const value = (acc += flg.lvl || 0);
+        return value;
       }, 0);
     } else {
       return -1;
@@ -177,7 +179,7 @@ class Flags {
       } else {
         const flg = flag.slice(1);
         for (const comp in this.isFlag(flg)?.components) {
-          delete obj.data.components[comp];
+          delete obj.data[comp];
         }
       }
 

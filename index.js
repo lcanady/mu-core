@@ -5,6 +5,7 @@ const User = require("./src/api/transport");
 const { spawn } = require("child_process");
 const { readFile } = require("fs");
 const { resolve } = require("path");
+const { ansiSubs } = require("./src/api/ansi");
 
 ipc.config.id = "ursamu";
 ipc.config.retry = 1500;
@@ -34,7 +35,7 @@ ipc.serve(() => {
     // Send the connect screen message.
     readFile(resolve(__dirname, "./text/connect.txt"), (err, b) => {
       if (err) socket.end("Unable to load login screen.\r\n");
-      user.write({ message: b.toString() });
+      user.write({ message: ansiSubs(b.toString()) });
     });
 
     // Handle new messages that come in from the socket.
@@ -45,7 +46,7 @@ ipc.serve(() => {
         "message",
         JSON.stringify({
           id: user.id,
-          _id: avatars.get ? avatars.get(user.id) : "",
+          _id: avatars.has(user.id) ? avatars.get(user.id) : "",
           command: "message",
           message: data.toString(),
         })
@@ -123,8 +124,10 @@ ipc.serve(() => {
       );
 
     console.log(users);
-    parser.kill();
-    parser = spawn("node", ["--inspect", "./src/engine.js"]);
+    parser.kill("SIGTERM");
+    parser.on("exit", () => {
+      parser = spawn("node", ["--inspect", "./src/engine.js"]);
+    });
 
     users
       .map((id) => getUser(avatars.get(id)))
