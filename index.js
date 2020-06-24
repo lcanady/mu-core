@@ -77,12 +77,12 @@ ipc.serve(() => {
     msg = JSON.parse(msg);
 
     // If a list of ids is given, send ot that list
-    if (msg.id) {
+    if (msg.ids && msg.ids.length > 0) {
       msg.ids.forEach((id) => {
         const user = getUser(id);
         if (user) user.write({ message: msg.message });
       });
-    } else {
+    } else if (msg.ids && msg.ids[0] === "any") {
       // Else send the message to every connected client.
       connections.forEach((user) => user.write({ message: msg.message }));
     }
@@ -121,6 +121,7 @@ ipc.serve(() => {
         })
       );
 
+    console.log(users);
     parser.kill();
     parser = spawn("node", ["--inspect", "./src/engine.js"]);
 

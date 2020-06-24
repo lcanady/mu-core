@@ -16,6 +16,7 @@ module.exports = (mu) => {
         mu.ipc.of.ursamu.emit(
           "broadcast",
           JSON.stringify({
+            ids: ["all"],
             message: `Game: Shutdown iniated by ${en.data.name}.`,
           })
         );

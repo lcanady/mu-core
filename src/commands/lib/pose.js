@@ -24,7 +24,10 @@ module.exports = (mu) => {
       // Send it off to everyone.
       mu.ipc.of.ursamu.emit(
         "broadcast",
-        JSON.stringify({ ids: room.data.contents, message })
+        JSON.stringify({
+          ids: room.data.contents,
+          message,
+        })
       );
       ctx.message = "";
       return ctx;
