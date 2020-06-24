@@ -90,7 +90,7 @@ ipc.serve(() => {
   });
 
   ipc.server.on("shutdown", (name) => {
-    parser.exit(0);
+    parser.kill("SIGTERM");
     process.exit(0);
   });
 
