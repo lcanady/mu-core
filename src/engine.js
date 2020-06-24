@@ -21,3 +21,6 @@ ipc.connectTo("ursamu", () => {
     if (ctx) ipc.of.ursamu.emit("message", JSON.stringify(ctx));
   });
 });
+
+process.on("SIGINT", () => process.exit(1));
+process.on("SIGTERM", () => process.exit(1));

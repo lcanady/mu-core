@@ -2,7 +2,7 @@ const ipc = require("node-ipc");
 const { createServer } = require("net");
 const config = require("./src/api/config");
 const User = require("./src/api/transport");
-const { exec, spawn } = require("child_process");
+const { spawn } = require("child_process");
 const { readFile } = require("fs");
 const { resolve } = require("path");
 
@@ -121,7 +121,6 @@ ipc.serve(() => {
         })
       );
 
-    console.log(users);
     parser.kill();
     parser = spawn("node", ["--inspect", "./src/engine.js"]);
 
