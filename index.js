@@ -89,6 +89,7 @@ ipc.serve(() => {
   });
 
   ipc.server.on("shutdown", (name) => {
+    parser.exit(0);
     process.exit(0);
   });
 
