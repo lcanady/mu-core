@@ -121,13 +121,23 @@ module.exports = mu =>
   })
 ```
 
-##### Possible `Flag` fields.
+###### Possible `Flag` fields.
 
 - `Name (required)` - the display name of the flag. The system is case insensitive.
 - `Code (required)` - The short-code for the flag. This is what will be desplayed next to the object's Database reference for admins and anyone who has permissions to edit the object.
 - `Lock` - A string list of flags required or restricted from setting this flag. See [flag queries](#) for more. If this is missing it defaults to anyone being able to set the flag.
 - `Description` - A brief description of the flag.
 - `Components` - Components are properties and default values that will be added too, or removed from an entity upon setting or removing the flag.
+
+#### flag Queries
+
+UrsaMU offers a little bit of shorthand for manipulating annd checking for flags. Flags can be checked for existance, or not (!). `flag` or `!flag`.
+
+Some flags also carry a level, or player bit (called bitlevel from here on). Adding a plus (+) to the end of a flag checks for that bit level or higher. `wizard+`
+
+Flags can also be checked for `or` statements. IE if any of the flags within the query return true, the entire query returns true. This is done with the pipe `|` character. Ex. `player|mob` Which stands for either the object has either the `player` or the `mob` flags.
+
+Flags can be checked/set as a sequence: `avatar combat approved|npc` Which checks for the avatar and combat flags, then checks to see if the object is approved OR has the NPC flag.
 
 ## License
 

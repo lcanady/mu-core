@@ -6,6 +6,8 @@ const parser = require("./parser");
 const flags = require("./flags");
 const { db } = require("./database");
 const grid = require("./grid");
+const broadcast = require("./broadcast");
+
 class MU extends EventEmitter {
   constructor(ipc) {
     super();
@@ -17,6 +19,7 @@ class MU extends EventEmitter {
     this.flags = flags;
     this.db = db;
     this.grid = grid(this);
+    this.send = broadcast(this);
   }
 
   configure(module) {
@@ -51,22 +54,6 @@ class MU extends EventEmitter {
       command: "message",
       message: cmd,
     });
-  }
-
-  async shutdown() {
-    const users = await this.db.find({
-      $where: function () {
-        return this.data?.flags?.indexOf("user") !== -1;
-      },
-    });
-
-    const connected = users.filter((user) =>
-      user?.data?.flags?.indexOf("connected")
-    );
-
-    for (const plyr of connected) {
-      this.flags.setFlags(plyr, "!connected");
-    }
   }
 }
 

@@ -23,5 +23,5 @@ ipc.connectTo("ursamu", () => {
 });
 
 process.on("SIGINT", () => process.exit(1));
-process.on("SIGTERM", () => process.exit(1));
-process.on("exit", () => process.exit(9));
+process.on("SIGTERM", () => process.exit(0));
+process.on("exit", () => process.exit(0));

@@ -12,7 +12,7 @@ module.exports = (mu) => {
       if (ctx.args[1]) {
         switch (ctx?.args[1]?.toLowerCase()) {
           case "here":
-            tar = await mu.db.get(en.location);
+            tar = await mu.db.get(en.data.location);
             break;
           case "me":
             tar = en;
