@@ -20,8 +20,7 @@ you must have the proper permissions to view the intended target.`,
 
       // If there's no target, let the user know!
       if (!tar) {
-        ctx.message = "I don't see that here.";
-        return ctx.user.write(ctx);
+        mu.send.to([ctx._id], "I don't see that here.");
       }
 
       // Determine if the object Name/Moniker should be displayed
@@ -48,7 +47,7 @@ you must have the proper permissions to view the intended target.`,
           .map((item) => mu.grid.name(en, item))
           .join("\n");
       }
-      mu.send.to([ctx._id], desc);
+      mu.send.to(ctx._id, desc);
     },
   });
 };

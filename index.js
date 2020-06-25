@@ -76,16 +76,19 @@ ipc.serve(() => {
   // Send a message to an array of sockets.
   ipc.server.on("broadcast", (msg) => {
     msg = JSON.parse(msg);
-
-    // If a list of ids is given, send ot that list
-    if (msg.ids && msg.ids.length > 0) {
-      msg.ids.forEach((id) => {
-        const user = getUser(id);
+    if (msg?.ids) {
+      if (Array.isArray(msg.ids)) {
+        // If a list of ids is given, send to that list
+        if (msg.ids.length > 0) {
+          msg.ids.forEach((id) => {
+            const user = getUser(id);
+            if (user) user.write({ message: msg.message });
+          });
+        }
+      } else {
+        const user = getUser(msg.ids);
         if (user) user.write({ message: msg.message });
-      });
-    } else if (msg.ids && msg.ids[0] === "any") {
-      // Else send the message to every connected client.
-      connections.forEach((user) => user.write({ message: msg.message }));
+      }
     }
   });
 
