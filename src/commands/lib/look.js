@@ -12,11 +12,10 @@ quick look at a target.  The target must be in the same room as you, and
 you must have the proper permissions to view the intended target.`,
     exec: async (ctx) => {
       const en = await mu.db.get(ctx._id);
-      let tar,
-        desc = "";
+      let desc = "";
 
       const tar = await mu.grid
-        .target(ctx.en, ctx.args[1])
+        .target(ctx.en, ctx.args[1] || "")
         .catch((err) => mu.send.to([ctx._id], err.message));
 
       // If there's no target, let the user know!
