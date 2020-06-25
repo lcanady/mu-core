@@ -127,14 +127,16 @@ module.exports = (mu) => {
       // If it's a user and they're connected
       if (
         mu.flags.hasFlags(tar, "connected !dark") ||
-        mu.flags.hasFlags(en, "wizard+")
+        (mu.flags.hasFlags(en, "wizard+") &&
+          mu.flags.hasFlags(tar, "connected dark"))
       ) {
         // if the user is dark, but can be edited by the enactor
         // make it visible to the enactor.
         return true;
       } else if (
         mu.flags.hasFlags(tar, "!user !dark|wizard+") ||
-        mu.flags.hasFlags(en, "wizard+")
+        (mu.flags.hasFlags(en, "wizard+") &&
+          mu.flags.hasFlags(tar, "connected dark"))
       ) {
         // Else if it's an object that's not dark (or you're a wizard+!)
         return true;

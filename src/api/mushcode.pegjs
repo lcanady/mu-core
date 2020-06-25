@@ -27,7 +27,7 @@ _ "[" _ call: word "(" _ a: (args)? _ ")" _ "]" _
 }
 
 
-args = 	a:(arg)+ _ t:args* {return [{type: "argument", args: a.flat()},...t].flat()}/ 
+args = 	a:(arg arg+) _ t:args* {return [{type: "list", args: a.flat()},...t].flat()}/ 
 
 		a: arg* _ "," _ "," _ t: (args)* 
 { 
