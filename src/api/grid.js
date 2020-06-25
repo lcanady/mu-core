@@ -134,6 +134,7 @@ module.exports = (mu) => {
         // make it visible to the enactor.
         return true;
       } else if (
+
         mu.flags.hasFlags(tar, "!user !player !exit !dark") ||
         (mu.flags.hasFlags(en, "wizard+") &&
           mu.flags.hasFlags(tar, "!user !player !exit dark"))

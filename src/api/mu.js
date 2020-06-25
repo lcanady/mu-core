@@ -1,6 +1,7 @@
 const { EventEmitter } = require("events");
 const commands = require("../commands");
 const services = require("../services");
+const functions = require("../functions");
 const config = require("./config");
 const parser = require("./parser");
 const flags = require("./flags");
@@ -44,7 +45,7 @@ class MU extends EventEmitter {
     }
 
     // Configure commands
-    this.configure(services).configure(commands);
+    this.configure(services).configure(commands).configure(functions);
   }
 
   async force(en, cmd, ctx) {
