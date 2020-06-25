@@ -3,6 +3,13 @@ module.exports = (mu) => {
     name: "@flags",
     flags: "connected wizard+",
     pattern: /^@flags\s(.*)\s?=\s?(.*)/i,
+    category: "admmin:flags",
+    help: `
+SYNTAX: @flags <target>=<[!]Flag>[ <[!]Flag> ... <[!]flag>]
+
+Set a list of flags on an object that you have the proper permissions to edit.
+
+ex. @flags Kumakun=amazing awesome !attention !cats`,
     exec: async (ctx) => {
       const tar = await mu.grid.target(ctx.en, ctx.args[1]);
       if (tar && mu.flags.canEdit(ctx.en, tar)) {
