@@ -19,15 +19,21 @@ ex. @flags Kumakun=amazing awesome !attention !cats`,
         ctx.args[2].split(" ").forEach((item) => {
           if (item.startsWith("!")) item = item.slice(1);
           const flg = mu.flags.isFlag(item);
-          canSet.push(mu.flags.hasFlags(ctx.en, flg.lock));
+          if (flg) {
+            canSet.push(mu.flags.hasFlags(ctx.en, flg.lock));
+          } else {
+            canSet.push(false);
+          }
         });
 
-        if (canSet.indexOf(false) === -1) {
+        if (canSet.indexOf(false) < 0) {
           const res = await mu.flags.setFlags(tar, ctx.args[2]);
-          res.forEach((msg) => mu.send.to([ctx._id], msg));
+          res.forEach((msg) => mu.send.to(ctx._id, msg));
+        } else {
+          mu.send.to(ctx._id, "Permission denied.");
         }
       } else {
-        mu.send.to([ctx.en._id], "Permission denied.");
+        mu.send.to(ctx._id, "Permission denied.");
       }
     },
   });

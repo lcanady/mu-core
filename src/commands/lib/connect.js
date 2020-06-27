@@ -26,22 +26,9 @@ module.exports = (mu) => {
         ctx._id = char[0]._id;
 
         // Run login commands.
-        mu.ipc.of.ursamu.emit(
-          "broadcast",
-          JSON.stringify({
-            ids: [char[0]._id],
-            message: "Link established ....\nWelcom to World Seed Online.",
-          })
-        );
         mu.force(char[0], "look", ctx);
       } else {
-        mu.ipc.of.ursamu.emit(
-          "broadcast",
-          [char[0]._id],
-          JSON.stringify({
-            message: "Authentication failed.",
-          })
-        );
+        mu.send.acct(ctx.id, "Authentication failed.");
       }
     },
   });

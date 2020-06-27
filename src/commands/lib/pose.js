@@ -22,15 +22,7 @@ module.exports = (mu) => {
       }
 
       // Send it off to everyone.
-      mu.ipc.of.ursamu.emit(
-        "broadcast",
-        JSON.stringify({
-          ids: room.data.contents,
-          message,
-        })
-      );
-      ctx.message = "";
-      return ctx;
+      mu.send.to(room.data.contents, message);
     },
   });
 };

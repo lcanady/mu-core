@@ -1,0 +1,9 @@
+Establishing Link ...
+Welcome to %cySeki No Tane:%cn%ch World Seed Online.
+%ch%cy+%cn%cy----------------------------%ch[%cn%ch%cc W E L C O M E %cn%ch%cy]%cn%cy------------------------------%ch+%cn
+  This is where we can put our MoTD information. At some point I'll make a 
+  command that will set this in game.  For now, a text file!
+
+  Running on the %chUrsaMU%cn Game Engine.
+  For help, type '%chhelp%cn'.
+%ch%cy+%cn%cy---------------------------------------------------------------------------%ch+%cn

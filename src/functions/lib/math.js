@@ -6,6 +6,6 @@ module.exports = (mu) => {
       let num = await mu.parser.evaluate(en, arg, scope);
       count += parseInt(num) || num;
     }
-    return count;
+    return count.toString();
   });
 };

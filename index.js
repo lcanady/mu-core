@@ -67,15 +67,13 @@ ipc.serve(() => {
   // When a message comes from the message channel
   // subscriber, send the data to the appropriate
   // sockets.
-  ipc.server.on("message", (msg) => {
-    ctx = JSON.parse(msg);
-    const user = connections.find((conn) => conn.id === ctx.id);
-    if (user) user.write(ctx);
+  ipc.server.on("message", ({ id, message }) => {
+    const user = connections.find((conn) => conn.id === id);
+    if (user) user.write({ message });
   });
 
-  // Send a message to an array of sockets.
-  ipc.server.on("broadcast", (msg) => {
-    msg = JSON.parse(msg);
+  // Send a message to an array of sockets, or a single socket.
+  ipc.server.on("send", (msg) => {
     if (msg?.ids) {
       if (Array.isArray(msg.ids)) {
         // If a list of ids is given, send to that list
@@ -92,14 +90,27 @@ ipc.serve(() => {
     }
   });
 
-  ipc.server.on("shutdown", (name) => {
+  // Send to all sockets.
+  ipc.server.on("broadcast", (msg) =>
+    connections.forEach((user) => user.write({ message }))
+  );
+
+  // Send to a socket that doesn't have an _id yet.
+  ipc.server.on("socket", (ctx) => {
+    ctx = JSON.parse(ctx);
+    const user = connections.find((conn) => conn.id === ctx.id);
+    if (user) user.write({ message: ctx.message });
+  });
+
+  // Shut the game down safely!
+  ipc.server.on("shutdown", () => {
     parser.kill("SIGTERM");
     process.exit(0);
   });
 
   // When a socket quits, send a mess age and disconnect the socket.
   ipc.server.on("quit", (id) => {
-    const user = getUser(id);
+    const user = connections.find((conn) => conn.id === id);
     if (user) {
       avatars.delete(user.id);
       connections = connections.filter((conn) => conn.id !== user.id);
@@ -112,7 +123,14 @@ ipc.serve(() => {
   ipc.server.on("authenticated", (ids) => {
     const [avatarID, SocketID] = JSON.parse(ids);
     avatars.set(SocketID, avatarID);
-    console.log(avatars);
+
+    const user = connections.find((conn) => conn.id === SocketID);
+    if (user)
+      readFile(
+        resolve(__dirname, "./text/motd.txt"),
+        { encoding: "utf-8" },
+        (err, data) => user.write({ message: data.toString() })
+      );
   });
 
   // When a Reboot call is made, kill the engine process.
@@ -122,19 +140,19 @@ ipc.serve(() => {
       .map((id) => getUser(avatars.get(id)))
       .forEach((user) =>
         user.write({
-          message: `Game: Reboot initiated by ${name}, please wait ...`,
+          message: `%chGame:%cn Reboot initiated by ${name}, please wait ...`,
         })
       );
 
-    console.log(users);
     parser.kill("SIGTERM");
     parser.on("exit", () => {
       parser = spawn("node", ["--inspect", "./src/engine.js"]);
+      users
+        .map((id) => getUser(avatars.get(id)))
+        .forEach((user) =>
+          user.write({ message: "%chGame:%cn Reboot completed." })
+        );
     });
-
-    users
-      .map((id) => getUser(avatars.get(id)))
-      .forEach((user) => user.write({ message: "Game: Reboot completed." }));
   });
 });
 

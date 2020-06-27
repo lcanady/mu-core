@@ -105,7 +105,6 @@ class Flags {
           (flg) => flg.name === flag.slice(0, flag.length - 1)
         );
         if (rec) {
-          console.log(this.bitLvl(obj));
           results.push(rec.lvl <= this.bitLvl(obj) ? true : false);
         } else {
           results.push(false);
@@ -190,9 +189,11 @@ class Flags {
 
       // Add to the results object
       results.push(
-        `Done. Flag (${this.isFlag(
+        `Done. Flag %ch${this.isFlag(
           flag.startsWith("!") ? flag.slice(1) : flag
-        ).name.toLowerCase()}) ${flag.startsWith("!") ? "removed" : "set"}`
+        ).name.toLowerCase()}%cn ${
+          flag.startsWith("!") ? "removed from" : "set on"
+        } %ch${obj.data.name}%cn.`
       );
     }
     return results;

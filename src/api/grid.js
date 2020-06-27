@@ -84,8 +84,7 @@ module.exports = (mu) => {
 
       // If ther's a to exit defined, create the exit and link it.
       if (toExit) {
-        const leaving = await entity("exit");
-        leaving.data.name = toExit;
+        const leaving = await entity(toExit, "exit");
         leaving.data.destination = room._id;
         room.exits.push(leaving._id);
         await mu.db.update(leaving._id, leaving);
@@ -93,7 +92,7 @@ module.exports = (mu) => {
         results.push(
           `exit ${this.name(
             enDbref,
-            leaving._ud
+            leaving._id
           )} opened and linked to ${this.name(enDbref, room._id)}.`
         );
 
@@ -110,7 +109,7 @@ module.exports = (mu) => {
           results.push(
             `exit ${this.name(
               enDbref,
-              returning._ud
+              returning._id
             )} opened and linked to ${this.name(enDbref, currRoom._id)}.`
           );
         }
@@ -134,7 +133,6 @@ module.exports = (mu) => {
         // make it visible to the enactor.
         return true;
       } else if (
-
         mu.flags.hasFlags(tar, "!user !player !exit !dark") ||
         (mu.flags.hasFlags(en, "wizard+") &&
           mu.flags.hasFlags(tar, "!user !player !exit dark"))
