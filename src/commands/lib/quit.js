@@ -7,12 +7,8 @@ module.exports = (mu) => {
     flags: "connected",
     exec: async (ctx) => {
       const en = await mu.db.get(ctx._id);
-
-      await mu.flags.setFlags(en, "!connected");
-      mu.ipc.of.ursamu.emit("quit", ctx._id);
-
-      ctx.message = "";
-      return ctx;
+      if (en) await mu.flags.setFlags(en, "!connected");
+      mu.ipc.of.ursamu.emit("quit", ctx.id);
     },
   });
 };

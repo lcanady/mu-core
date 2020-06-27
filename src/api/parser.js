@@ -89,6 +89,11 @@ class Parser {
       throw new Error("Unknown expression");
     }
   }
+
+  // Strip the color substitutions from a string.
+  stripSubs(string) {
+    return string.replace(/%[cCxX]\w/g, "").replace(/%[cC]/);
+  }
 }
 
 module.exports = new Parser();

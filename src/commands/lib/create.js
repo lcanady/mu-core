@@ -46,12 +46,9 @@ module.exports = (mu) => {
           );
 
           // Send startup commannds
-          mu.ipc.of.ursamu.emit(
-            "broadcast",
-            JSON.stringify({
-              ids: [char._id],
-              message: "Link established ...\nWelcom to World Seed Online.",
-            })
+          mu.send.to(
+            char._id,
+            "Link established ....\nWelcome to World Seed Online."
           );
 
           // Force the character to run the look command

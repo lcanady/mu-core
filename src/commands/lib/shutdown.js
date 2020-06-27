@@ -13,12 +13,9 @@ module.exports = (mu) => {
 
       for (const player of players) {
         await mu.flags.setFlags(player, "!connected");
-        mu.ipc.of.ursamu.emit(
-          "broadcast",
-          JSON.stringify({
-            ids: ["all"],
-            message: `Game: Shutdown iniated by ${en.data.name}.`,
-          })
+        mu.send.to(
+          player._id,
+          `%chGame:%cn Shutdown iniated by ${en.data.name}.`
         );
         mu.ipc.of.ursamu.emit("shutdown", en.name);
       }
