@@ -9,6 +9,7 @@ module.exports = (mu) => {
   const baseObj = async (name) =>
     await mu.db.create({
       _id: `#${await mu.db.count()}`,
+      flags: [],
       data: { name },
     });
 
@@ -16,7 +17,7 @@ module.exports = (mu) => {
    * Create a base database object, based on the entered type:
    * user, room, exit or thing.
    * @param {string} name The name of the new entity.
-   * @param {"user" | "room" | "exit" | "thing"} type The type of entity
+   * @param {string} type The type of entity
    * to create.
    */
   const entity = async (name, type = "thing") => {
@@ -45,7 +46,7 @@ module.exports = (mu) => {
       if (en === "") en = tar;
       const edit = mu.flags.canEdit(en, tar);
       return `${tar.data.name}${
-        edit ? "(" + tar._id + mu.flags.code(tar.data.flags) + ")" : ""
+        edit ? "(" + tar._id + mu.flags.code(tar.flags) + ")" : ""
       }`;
     }
 

@@ -1,9 +1,10 @@
-Establishing Link ...
-Welcome to %cySeki No Tane:%cn%ch World Seed Online.
-%ch%cy+%cn%cy----------------------------%ch[%cn%ch%cc W E L C O M E %cn%ch%cy]%cn%cy------------------------------%ch+%cn
-  This is where we can put our MoTD information. At some point I'll make a 
-  command that will set this in game.  For now, a text file!
 
-  Running on the %chUrsaMU%cn Game Engine.
-  For help, type '%chhelp%cn'.
-%ch%cy+%cn%cy---------------------------------------------------------------------------%ch+%cn
+%cb-------------------------%ch=%cn %chMessage of the Day %cb=%cn%cb------------------------------%cn
+
+Welcome to UrsaMU!  A MUSH-like engine written entirely in JavaScript! The software is very early %ch%ccBETA%cn at the moment, and you'll probably find bugs a plenty - but we're working on it! Any issues you come across, make sure to submit a bug request to staff!
+
+Also, any feature requests or bugs can also be submitted at our github repo:
+https://github.com/lcanady/mu-core/issues
+
+For help, type '%chhelp%cn'.
+%cb-----------------------------------------------------------------------------%cn

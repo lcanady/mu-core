@@ -4,12 +4,7 @@ module.exports = (mu) => {
     pattern: /^think\s(.*)/i,
     flags: "connected",
     exec: async (ctx) => {
-      mu.send.to(
-        ctx._id,
-        await mu.parser.evaluate(ctx.en, mu.parser.parse(ctx.args[1]), {
-          "%#": ctx._id,
-        })
-      );
+      mu.send.to(ctx._id, await mu.parser.run(ctx.en, ctx.args[1], mu.scope));
     },
   });
 };

@@ -1,13 +1,20 @@
+const yml = require("yaml");
+
 module.exports = (mu) => {
   mu.command({
     name: "@flags",
     flags: "connected wizard+",
     pattern: /^@flags\s(.*)\s?=\s?(.*)/i,
-    category: "admmin:flags",
+    category: "admin:flags",
     help: `
 SYNTAX: @flags <target>=<[!]Flag>[ <[!]Flag> ... <[!]flag>]
+        @flags/list
+        @flag/info <flag>
 
-Set a list of flags on an object that you have the proper permissions to edit.
+The first comamnd Sets a list of flags on an object that you have the proper
+permissions to edit. The second form of this command will list all available
+flags and their codes/lvls.  The third form will show you detailed
+information about an idividual flag.
 
 ex. @flags Kumakun=amazing awesome !attention !cats`,
     exec: async (ctx) => {
@@ -35,6 +42,59 @@ ex. @flags Kumakun=amazing awesome !attention !cats`,
       } else {
         mu.send.to(ctx._id, "Permission denied.");
       }
+    },
+  });
+
+  mu.command({
+    name: "@flag/info",
+    flags: "connected wizard+",
+    pattern: /^@flag\/info\s(.*)/i,
+    exec: async (ctx) => {
+      const flag = mu.flags.isFlag(ctx.args[1]);
+      if (flag) {
+        let screen = `[padding(%ch%cb=%cn %chFLAG INFO: ${flag.name.toUpperCase()}%(${
+          flag.code
+        }%)%cn %ch%cb=%cn,78,%cb-%cn, center)]%r`;
+        screen += `Name: %ch${flag.name}%cn%r`;
+        screen += `Code: %ch${flag.code || ""}%cn%r`;
+        screen += `Lvl:  %ch${flag.lvl || 0}%cn%r`;
+        screen += `Lock: %ch${flag.lock || ""}%cn%r`;
+
+        if (flag.components) {
+          screen += `%r%ch%uComponents:%cn%r%r`;
+          screen += yml
+            .stringify(flag.components)
+            .replace(/\n/g, "%r")
+            .replace(/\[/g, "%[")
+            .replace(/\]/g, "%]")
+            .replace(/\(/g, "%(")
+            .replace(/\)/g, "%)")
+            .replace(/,/g, "%,")
+            .replace(/([\w]+):\s([\w\d]+)/g, "$1: %ch$2%cn");
+        }
+
+        screen += `%r[repeat(%cb-%cn,78)]`;
+
+        mu.send.to(ctx._id, await mu.parser.run(ctx.en, screen, mu.scope));
+      } else {
+        mu.send.to(ctx._id, "Flag not found.");
+      }
+    },
+  });
+
+  mu.command({
+    name: "@flags/list",
+    flags: "connected wizard+",
+    pattern: /^@flags\/list/,
+    exec: async (ctx) => {
+      let screen = `[padding(%ch%cb=%cn %chFLAG LIST%cn %ch%cb=%cn,78,%cb-%cn, center)]%r`;
+      let flags = mu.flags.flags.map(
+        (flag) => `${flag.name.toUpperCase()}%(${flag.code}%)`
+      );
+
+      screen += `[columns(${flags.sort().join(" ")},19)]%r`;
+      screen += `[repeat(%cb-%cn,78)]%rType '%ch@flag/info <flag>%cn for more info`;
+      mu.send.to(ctx._id, await mu.parser.run(ctx.en, screen, mu.scope));
     },
   });
 };

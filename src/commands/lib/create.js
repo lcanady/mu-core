@@ -16,7 +16,7 @@ module.exports = (mu) => {
       // Check to see if there's already an immortal avatar made.
       const players = await mu.db.find({
         $where: function () {
-          return this?.data?.flags?.indexOf("immortal") !== (-1 || undefined);
+          return this.flags.indexOf("immortal") !== (-1 || undefined);
         },
       });
 
@@ -46,12 +46,7 @@ module.exports = (mu) => {
           );
 
           // Send startup commannds
-          mu.send.to(
-            char._id,
-            "Link established ....\nWelcome to World Seed Online."
-          );
-
-          // Force the character to run the look command
+          mu.send.to(ctx._id, mu.txt.get("motd"));
           mu.force(char, "look", ctx);
         } else {
           mu.ipc.of.ursamu.emit(

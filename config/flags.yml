@@ -20,7 +20,9 @@ flags:
       name: ""
       desc: "You see nothing special."
       contents: []
-      exites: []
+      exits: []
+      attributes: {}
+      channels: {}
       owner: ""
       location: ""
       moniker: ""

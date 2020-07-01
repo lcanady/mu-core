@@ -6,7 +6,7 @@ module.exports = (mu) => {
    * @param {number} length The length of the string.
    */
   const remainder = (string = "", length) =>
-    Math.floor(length % parser.stripSubs(string).length);
+    length % parser.stripSubs(string).length;
 
   /**
    * Repeat a string.
@@ -44,15 +44,17 @@ module.exports = (mu) => {
       const type = args[3]
         ? (await parser.evaluate(en, args[3], scope)).toLowerCase()
         : "left";
-      const length = (width - parser.stripSubs(message).length) / 2;
+      let length = (width - parser.stripSubs(message).length) / 2;
+
       const remainder = (width - parser.stripSubs(message).length) % 2;
 
       switch (type) {
         case "center":
+          const len = parser.stripSubs(message).length % 2;
           return (
-            repeatString(repeat, length) +
+            repeatString(repeat, !len ? Math.trunc(length) - 1 : length) +
             message +
-            repeatString(repeat, length + remainder)
+            repeatString(repeat, !len ? Math.trunc(length) - 1 : length)
           );
         case "left":
           return message + repeatString(repeat, length * 2);
@@ -91,15 +93,31 @@ module.exports = (mu) => {
     let line = "";
     // Start working with the main list.
     list.split(delim).forEach((item) => {
-      if (indent + line.length + item.length >= 78) {
-        line += "%r" + " ".repeat(indent) + item.padEnd(width);
+      const tempWidth = width - mu.parser.stripSubs(item).length;
+      if (
+        mu.parser.stripSubs(line).length +
+          mu.parser.stripSubs(item).length +
+          tempWidth >
+        78
+      ) {
+        console.log(width - mu.parser.stripSubs(item).length);
         output += line;
         line = "";
+        line +=
+          "%r" + item + " ".repeat(width - mu.parser.stripSubs(item).length);
       } else {
-        line += item.padEnd(width);
+        line += item + " ".repeat(width - mu.parser.stripSubs(item).length);
       }
     });
     // Tack the last line onto the end! ^_^
     return "%s".repeat(indent) + output + line;
+  });
+
+  // repeat
+  // SYNYAX: repeat(<text>,<length>)
+  parser.function("repeat", async (en, args, scope) => {
+    const text = await parser.evaluate(en, args[0], scope);
+    const len = parseInt(await parser.evaluate(en, args[1], scope));
+    return repeatString(text, len % 2 ? len : len - 1);
   });
 };

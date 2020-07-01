@@ -26,6 +26,7 @@ module.exports = (mu) => {
         ctx._id = char[0]._id;
 
         // Run login commands.
+        mu.send.to(ctx._id, mu.txt.get("motd"));
         mu.force(char[0], "look", ctx);
       } else {
         mu.send.acct(ctx.id, "Authentication failed.");

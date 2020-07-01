@@ -90,9 +90,100 @@ class Parser {
     }
   }
 
-  // Strip the color substitutions from a string.
+  /**
+   * Strip MUSH ansi subsitution shorthand from a string.
+   * @param {string} string - The text to strip the substitution
+   * characters from.
+   */
   stripSubs(string) {
-    return string.replace(/%[cCxX]\w/g, "").replace(/%[cC]/);
+    return string
+      .replace(/%[cCxX]./g, "")
+      .replace(/&lpar;/g, " ")
+      .replace(/&rpar;/g, " ")
+      .replace(/&#91;/g, " ")
+      .replace(/&#93;/g, " ");
+  }
+
+  async run(en, string, scope) {
+    string = string
+      .replace(/%\(/g, "&lpar;")
+      .replace(/%\)/g, "&rpar;")
+      .replace(/%\[/g, "&#91;")
+      .replace(/%\]/g, "&#93;")
+      .replace(/%,/g, "&#44;");
+
+    try {
+      return await this.evaluate(en, this.parse(string), scope);
+    } catch (error) {
+      return await this.string(en, string, scope);
+    }
+  }
+
+  async string(en, text, scope) {
+    let parens = -1;
+    let brackets = -1;
+    let match = false;
+    let workStr = "";
+    let output = "";
+    let start = -1;
+    let end = -1;
+
+    // Loop through the text looking for brackets.
+    for (let i = 0; i < text.length; i++) {
+      if (text[i] === "[") {
+        brackets = brackets > 0 ? brackets + 1 : 1;
+        start = start > 0 ? start : i;
+        match = true;
+      } else if (text[i] === "]") {
+        brackets = brackets - 1;
+      } else if (text[i] === "(") {
+        parens = parens > 0 ? parens + 1 : 1;
+      } else if (text[i] === ")") {
+        parens = parens - 1;
+      }
+
+      // Check to see if brackets are evenly matched.
+      // If so process that portion of the string and
+      // replace it.
+      if (match && brackets !== 0 && parens !== 0) {
+        workStr += text[i];
+      } else if (match && brackets === 0 && parens === 0) {
+        // If the brackets are zeroed out, replace the portion of
+        // the string with evaluated code.
+        workStr += text[i];
+        end = i;
+
+        // If end is actually set (We made it past the first characracter),
+        // then try to parse `workStr`.  If it won't parse (not an expression)
+        // then run it through string again just to make sure.  If /that/ fails
+        // error.
+        if (end) {
+          let results = await this.run(en, workStr, scope).catch(async () => {
+            output += await this.string(en, workStr, scope).catch(console.log);
+          });
+          // Add the results to the rest of the processed string.
+          output += results;
+        }
+
+        // Reset the count variables.
+        parens = -1;
+        brackets = -1;
+        match = false;
+        start = -1;
+        end = -1;
+        workStr = "";
+      } else {
+        // If stray paren or bracket slips through, add it to `workStr`
+        // else add it right to the output.  There's no code there.
+        if (text[i].match(/[\[\]\(\)]/)) {
+          workStr += text[i];
+        } else {
+          output += text[i];
+        }
+      }
+    }
+    // Return the evaluated text
+    return output ? output : workStr;
   }
 }
 

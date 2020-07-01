@@ -2,6 +2,13 @@
 tcp:
   port: 4201
 
+ws:
+  port: 4202
+
+# World source files.
+root: ./wso
+
 # In game configuration
 game:
   startingRoom: "#0"
+  startingRoomName: "The Nexus"

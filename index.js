@@ -5,7 +5,6 @@ const User = require("./src/api/transport");
 const { spawn } = require("child_process");
 const { readFile } = require("fs");
 const { resolve } = require("path");
-const { ansiSubs } = require("./src/api/ansi");
 
 ipc.config.id = "ursamu";
 ipc.config.retry = 1500;
@@ -33,10 +32,7 @@ ipc.serve(() => {
     connections.push(user);
 
     // Send the connect screen message.
-    readFile(resolve(__dirname, "./text/connect.txt"), (err, b) => {
-      if (err) socket.end("Unable to load login screen.\r\n");
-      user.write({ message: ansiSubs(b.toString()) });
-    });
+    ipc.server.broadcast("muconnect", user.id);
 
     // Handle new messages that come in from the socket.
     socket.on("data", (data) => {
@@ -91,15 +87,14 @@ ipc.serve(() => {
   });
 
   // Send to all sockets.
-  ipc.server.on("broadcast", (msg) =>
+  ipc.server.on("broadcast", ({ message }) =>
     connections.forEach((user) => user.write({ message }))
   );
 
   // Send to a socket that doesn't have an _id yet.
-  ipc.server.on("socket", (ctx) => {
-    ctx = JSON.parse(ctx);
-    const user = connections.find((conn) => conn.id === ctx.id);
-    if (user) user.write({ message: ctx.message });
+  ipc.server.on("acct", ({ id, message }) => {
+    const user = connections.find((conn) => conn.id === id);
+    if (user) user.write({ message });
   });
 
   // Shut the game down safely!
@@ -123,14 +118,6 @@ ipc.serve(() => {
   ipc.server.on("authenticated", (ids) => {
     const [avatarID, SocketID] = JSON.parse(ids);
     avatars.set(SocketID, avatarID);
-
-    const user = connections.find((conn) => conn.id === SocketID);
-    if (user)
-      readFile(
-        resolve(__dirname, "./text/motd.txt"),
-        { encoding: "utf-8" },
-        (err, data) => user.write({ message: data.toString() })
-      );
   });
 
   // When a Reboot call is made, kill the engine process.

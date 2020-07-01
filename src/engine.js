@@ -18,8 +18,13 @@ ipc.connectTo("ursamu", () => {
     const ctx = await mu.parser.process(msg);
 
     // If no context is returned, no need to pass anything!
-    if (ctx) ipc.of.ursamu.emit("message", JSON.stringify(ctx));
+    if (ctx) ipc.of.ursamu.emit("message", ctx);
   });
+
+  // Send a Connect message to the newly opened socket!
+  ipc.of.ursamu.on("muconnect", (id) =>
+    mu.send.acct(id, mu.txt.get("connect"))
+  );
 });
 
 process.on("SIGINT", () => process.exit(1));

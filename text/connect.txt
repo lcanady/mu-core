@@ -1,12 +1,13 @@
-%ch%cy+%cn%cy---------------------------------------------------------------------------%ch+%cn 
-%ch'||      ||`.|''''|,'||'''|,'||    '||'''|.   .|'''| '||''''|'||''''|'||'''|. 
- ||      || ||    || ||   || ||     ||   ||   ||      ||   .  ||   .  ||   || 
- ||  /\  || ||    || ||...|' ||     ||   ||   `|'''|, ||'''|  ||'''|  ||   || 
-  \\//\\//  ||    || || \\   ||     ||   ||    .   || ||      ||      ||   || 
-   \/  \/   `|....|'.||  \\..||...|.||...|'    |...|'.||....|.||....|.||...|'
-%cy+%cn%cy------------------------------%ch[%cc O N L I N E %ch%cy]%cn%cy------------------------------%ch%cy+%cn
+%cb------------------------------%ch=%cn %chWelcome To%cn %ch%cb=%cn%cb---------------------------------%cn
+             %ch__   __  ______    _______  _______  __   __  __   __ 
+            |  | |  ||    _ |  |       ||   _   ||  |_|  ||  | |  |
+            |  | |  ||   | ||  |  _____||  |_|  ||       ||  | |  |
+            |  |_|  ||   |_||_ | |_____ |       ||       ||  |_|  |
+            |       ||    __  ||_____  ||       ||       ||       |
+            |       ||   |  | | _____| ||   _   || ||_|| ||       |
+            |_______||___|  |_||_______||__| |__||_|   |_||_______|%cn
 
-Type '%chcreate%cn <%chhandle%cn> <%chpassword%cn>' to create a new avatar.
-Type '%chconnect%cn <%chhandle%cn> <%chpassword%cn>' to connect to an existing avatar.
-Type '%chWHO%cn' scan the connected list.
-Type '%chQuit%cn' to log out.
+%cb-------------%ch=%cn %chA Mext Generation Text Based Roleplaying Engine%cn %ch%cb=%cn%cb-------------%cn
+
+To create a new character, type '%chcreate%cn <%chname%cn> <%chpassword%cn>'.
+To connect to a character, type '%chconnect%cn <%chname%cn> <%chpassword%cn>'.

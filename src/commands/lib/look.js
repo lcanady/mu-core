@@ -5,7 +5,7 @@ module.exports = (mu) => {
     flags: "connected",
     category: "general:basics",
     help: `
-SYNTAX: look [<target>]
+SYNTAX: l[ook] [<target>]
 
 Look is used to see the descriptions and other notable clues by taking a
 quick look at a target.  The target must be in the same room as you, and
@@ -27,7 +27,7 @@ you must have the proper permissions to view the intended target.`,
       // or nameFormat should instead.  TODO: Fill out stub for
       // nameFormat.
       desc += mu.grid.name(en, tar) + "\n";
-      desc += tar.data.desc || "You see nothing sepecial.";
+      desc += tar.data.desc || "You see nothing special.";
 
       // Check to see if the target has anything in it's inventory.
       if (tar.data.contents.length > 0) {

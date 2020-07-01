@@ -1,5 +1,10 @@
 const ansiSubs = (string) =>
   string
+    .replace(/&lpar;/g, "(")
+    .replace(/&rpar;/g, ")")
+    .replace(/&#91;/g, "[")
+    .replace(/&#93;/g, "]")
+    .replace(/&#44;/g, ",")
     // Foreground colors
     .replace(/%[cCxX]x/g, "\u001b[30m")
     .replace(/%[cCxX]r/g, "\u001b[31m")
@@ -20,8 +25,9 @@ const ansiSubs = (string) =>
     .replace(/%[cCxX]C/g, "\u001b[45m")
     .replace(/%[cCxX]W/g, "\u001b[47m")
     .replace(/%c(\d{1,3})/g, "\u001b[38;5;$1m")
-    .replace(/%b/g, " ")
-    .replace(/%r/g, "\n")
-    .replace(/%t/g, "\t");
+    .replace(/%[bB]/g, " ")
+    .replace(/%[rR]/g, "\n")
+    .replace(/%{tT}/g, "\t")
+    .replace(/%[uU]/g, "\u001b[4m");
 
 module.exports.ansiSubs = ansiSubs;

@@ -72,7 +72,7 @@ class Flags {
         for (const f of fls) {
           if (f.startsWith("!")) {
             tmpRes.push(
-              obj?.data?.flags.indexOf(f.slice(1).toLowerCase()) < 0 ||
+              obj.flags.indexOf(f.slice(1).toLowerCase()) < 0 ||
                 obj.data === undefined
                 ? true
                 : false
@@ -87,15 +87,13 @@ class Flags {
             }
           } else {
             // Else check for the flag per normal.
-            tmpRes.push(
-              obj?.data?.flags.indexOf(f.toLowerCase()) > -1 ? true : false
-            );
+            tmpRes.push(obj.flags.indexOf(f.toLowerCase()) > -1 ? true : false);
           }
         }
         results.push(tmpRes.indexOf(true) >= 0 ? true : false);
       } else if (flag.startsWith("!")) {
         results.push(
-          obj?.data?.flags.indexOf(flag.slice(1).toLowerCase()) < 0 ||
+          obj?.flags?.indexOf(flag.slice(1).toLowerCase()) < 0 ||
             obj.data === undefined
             ? true
             : false
@@ -111,9 +109,7 @@ class Flags {
         }
       } else {
         // Else check for the flag per normal.
-        results.push(
-          obj?.data?.flags.indexOf(flag.toLowerCase()) > -1 ? true : false
-        );
+        results.push(obj.flags.indexOf(flag.toLowerCase()) > -1 ? true : false);
       }
     }
 
@@ -126,17 +122,11 @@ class Flags {
    * @param {Object} Obj The user object to check the bit level for.
    */
   bitLvl(obj) {
-    let en;
-
-    if (obj?.data?.flags) {
-      return obj.data.flags.reduce((acc, cur) => {
-        const flg = this.flags.find((flag) => flag.name === cur.toLowerCase());
-        const value = (acc += flg.lvl || 0);
-        return value;
-      }, 0);
-    } else {
-      return -1;
-    }
+    return obj.flags.reduce((acc, cur) => {
+      const flg = this.flags.find((flag) => flag.name === cur.toLowerCase());
+      const value = (acc += flg.lvl || 0);
+      return value;
+    }, 0);
   }
 
   /**
@@ -164,14 +154,14 @@ class Flags {
     const results = [];
     for (let flag of flags) {
       // Create a set to filter for flags the obj might already have.
-      const flagSet = new Set(obj?.data?.flags);
+      const flagSet = new Set(obj.flags);
       if (!flag.startsWith("!")) {
         flagSet.add(this.isFlag(flag).name.toLowerCase());
       } else {
         flagSet.delete(this.isFlag(flag.slice(1)).name.toLowerCase());
       }
 
-      obj.data.flags = Array.from(flagSet);
+      obj.flags = Array.from(flagSet);
 
       if (!flag.startsWith("!")) {
         obj.data = { ...this.isFlag(flag).components, ...obj.data };
