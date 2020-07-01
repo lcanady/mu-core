@@ -38,13 +38,12 @@ module.exports = (mu) => {
 
         if (char) {
           await mu.db.update(char._id, char);
-          console.log("char", char);
           // Let Major know that the socket is authenticated.
           mu.ipc.of.ursamu.emit(
             "authenticated",
             JSON.stringify([char._id, ctx.id])
           );
-
+          ctx._id = char._id;
           // Send startup commannds
           mu.send.to(ctx._id, mu.txt.get("motd"));
           mu.force(char, "look", ctx);
