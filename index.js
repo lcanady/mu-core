@@ -119,8 +119,8 @@ ipc.serve(() => {
       // are no more connected to that
       users.forEach((user) => avatars.delete(user.id));
       connections = connections.filter((conn) => conn.id !== id);
-      ipc.server.send("flags", { _id: dbref, flags: "!connected" });
-      user.end({ message: "See you, space cowboy ..." });
+      ipc.server.broadcast("flags", { _id: dbref, flags: "!connected" });
+      users[0].end({ message: "See you, space cowboy ..." });
     } else if (users.length > 1) {
       // More than one connection to the game through this dbref at the
       // moment.  Disconnect the current connection without removing

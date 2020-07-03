@@ -27,8 +27,8 @@ ipc.connectTo("ursamu", () => {
   );
 
   // perforom actions on an object's flags.
-  ipc.of.ursamu.on("flags", async ({ id, flags }) => {
-    const en = await mu.db.get(id);
+  ipc.of.ursamu.on("flags", async ({ _id, flags }) => {
+    const en = await mu.db.get(_id);
     mu.flags.setFlags(en, flags);
   });
 });
