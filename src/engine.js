@@ -25,6 +25,12 @@ ipc.connectTo("ursamu", () => {
   ipc.of.ursamu.on("muconnect", (id) =>
     mu.send.acct(id, mu.txt.get("connect"))
   );
+
+  // perforom actions on an object's flags.
+  ipc.of.ursamu.on("flags", async ({ id, flags }) => {
+    const en = await mu.db.get(id);
+    mu.flags.setFlags(en, flags);
+  });
 });
 
 process.on("SIGINT", () => process.exit(1));

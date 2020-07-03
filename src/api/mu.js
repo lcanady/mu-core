@@ -83,7 +83,6 @@ class MU extends EventEmitter {
         });
       }
     }
-    console.log(help);
   }
 
   async force(en, cmd, ctx) {

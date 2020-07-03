@@ -20,7 +20,7 @@ let avatars = new Map();
 ipc.serve(() => {
   // Helper function to get user object info from a #DBREF.
   const getUser = (id) =>
-    connections.find((conn) => avatars.get(conn.id) === id);
+    connections.filter((conn) => avatars.get(conn.id) === id);
 
   // Start the TCP server for telnet connections after the IPC
   // channel loads..
@@ -75,13 +75,15 @@ ipc.serve(() => {
         // If a list of ids is given, send to that list
         if (msg.ids.length > 0) {
           msg.ids.forEach((id) => {
-            const user = getUser(id);
-            if (user) user.write({ message: msg.message });
+            const users = getUser(id);
+            if (users.length > 0)
+              users.forEach((user) => user.write({ message: msg.message }));
           });
         }
       } else {
-        const user = getUser(msg.ids);
-        if (user) user.write({ message: msg.message });
+        const users = getUser(msg.ids);
+        if (users.length > 0)
+          users.forEach((user) => user.write({ message: msg.message }));
       }
     }
   });
@@ -104,11 +106,28 @@ ipc.serve(() => {
   });
 
   // When a socket quits, send a mess age and disconnect the socket.
+  // This is a little tricky, because someone could techinically be
+  // connected to the same character through multiple ports.
+  // If this is the case, we need to make sure we're only disconnecting
+  // the currrent port, and not changing the status of any others.
   ipc.server.on("quit", (id) => {
-    const user = connections.find((conn) => conn.id === id);
-    if (user) {
-      avatars.delete(user.id);
-      connections = connections.filter((conn) => conn.id !== user.id);
+    const dbref = avatars.get(id);
+    let users = getUser(dbref);
+    if (users.length <= 1) {
+      // If the user has an associated avatar, remove it, and request
+      // to remove the connected flag from the socket - only if there
+      // are no more connected to that
+      users.forEach((user) => avatars.delete(user.id));
+      connections = connections.filter((conn) => conn.id !== id);
+      ipc.server.send("flags", { _id: dbref, flags: "!connected" });
+      user.end({ message: "See you, space cowboy ..." });
+    } else if (users.length > 1) {
+      // More than one connection to the game through this dbref at the
+      // moment.  Disconnect the current connection without removing
+      // the connected flag.
+      users.forEach(() => avatars.delete(id));
+      const user = users.find((user) => user.id === id);
+      connections = connections.filter((conn) => conn.id !== id);
       user.end({ message: "See you, space cowboy ..." });
     }
   });
@@ -126,7 +145,7 @@ ipc.serve(() => {
     users
       .map((id) => getUser(avatars.get(id)))
       .forEach((user) =>
-        user.write({
+        user[0].write({
           message: `%chGame:%cn Reboot initiated by ${name}, please wait ...`,
         })
       );
@@ -137,7 +156,7 @@ ipc.serve(() => {
       users
         .map((id) => getUser(avatars.get(id)))
         .forEach((user) =>
-          user.write({ message: "%chGame:%cn Reboot completed." })
+          user[0].write({ message: "%chGame:%cn Reboot completed." })
         );
     });
   });

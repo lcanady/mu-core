@@ -8,6 +8,17 @@
 
 This _README_ is more of a living notes at the moment.
 
+[Installation](#) <br>
+[Configuration](#)<br>
+[ECS & Flags](#)<br>
+[Services](#)<br>
+[Context](#)<br>
+[Hooks](#)<br>
+[Commands](#)<br>
+[Functions](#)<br>
+[Plugins & Expansions](#)<br>
+[Help](#)
+
 ## What Is UrsaMU
 
 UrsaMU us a hat tip to the brilliant people behind the MUSH multi-user text based Roleplaying servers of the mid to late 90's. This project is a personal attempt to recreate that magic, plus add some features that I've always wished MUSHes had by default.

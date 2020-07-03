@@ -40,8 +40,26 @@ class Parser {
    * the client.
    */
   service(service) {
+    service.hooks = new Map();
+    service.hooks.set("before", []);
+    service.hooks.set("after", []);
     this.services.push(service);
     return this;
+  }
+
+  /**
+   * Attach a hooks to a service.
+   * @param {string} when 'before' or 'after ' the service has run
+   * @param {string} name The name of the servicce to attach too.
+   * @param  {...any} hooks The list of hooks to assign to a service
+   */
+  hooks(name, when, ...hooks) {
+    srv = this.services.find((service) => service.name === name);
+    // if the service exists and the 'when' is either before or after.
+    if (srv && srv.hooks.has(when)) {
+      // For each hook, push it into the proper stack.
+      hooks.forEach((hook) => srv.hooks.get(when).push(hook));
+    }
   }
 
   /**
@@ -51,7 +69,17 @@ class Parser {
   async process(ctx) {
     for (const service of this.services) {
       if (service.name === ctx.command.toLowerCase()) {
-        return await service.exec(ctx);
+        for (const bhook of service.hooks.get("before")) {
+          ctx = await bhook(ctx);
+        }
+
+        ctx = await service.exec(ctx);
+
+        for (const bhook of service.hooks.get("after")) {
+          ctx = await bhook(ctx);
+        }
+
+        return ctx;
       }
     }
   }
