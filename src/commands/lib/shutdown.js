@@ -2,6 +2,12 @@ module.exports = (mu) => {
   mu.command({
     name: "@shutdown",
     flags: "connected wizard+",
+    category: "wizard",
+    help: `
+SYNTAX: @shutdown
+
+Shut the game down safely.
+    `,
     pattern: /^@shutdown/i,
     exec: async (ctx) => {
       const en = await mu.db.get(ctx._id);

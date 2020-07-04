@@ -140,26 +140,28 @@ ipc.serve(() => {
   });
 
   // When a Reboot call is made, kill the engine process.
-  ipc.server.on("reboot", (name) => {
-    let users = Array.from(avatars.keys());
-    users
-      .map((id) => getUser(avatars.get(id)))
-      .forEach((user) =>
-        user[0].write({
-          message: `%chGame:%cn Reboot initiated by ${name}, please wait ...`,
-        })
-      );
-
-    parser.kill("SIGTERM");
-    parser.on("exit", () => {
-      parser = spawn("node", ["--inspect", "./src/engine.js"]);
+  ipc.server
+    .on("reboot", (name) => {
+      let users = Array.from(avatars.keys());
       users
         .map((id) => getUser(avatars.get(id)))
         .forEach((user) =>
-          user[0].write({ message: "%chGame:%cn Reboot completed." })
+          user[0].write({
+            message: `%chGame:%cn Reboot initiated by ${name}, please wait ...`,
+          })
         );
-    });
-  });
+
+      parser.kill("SIGTERM");
+      parser.on("exit", () => {
+        parser = spawn("node", ["--inspect", "./src/engine.js"]);
+        users
+          .map((id) => getUser(avatars.get(id)))
+          .forEach((user) =>
+            user[0].write({ message: "%chGame:%cn Reboot completed." })
+          );
+      });
+    })
+    .on("error", (err) => console.log(err));
 });
 
 ipc.server.start();

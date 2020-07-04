@@ -1,18 +1,18 @@
 module.exports = (mu) => {
   mu.command({
-    name: "@description",
+    name: "@desc",
     pattern: /^@des[cription]+\s(.*)\s?=\s?(.*)/i,
     flags: "connected",
     category: "general:basics",
     help: `
-SYNTAX: @description <target>=<description>
+SYNTAX: @desc[ription] <target>=<description>
 
 Change the description of yourself 'me' or any other object that you have
 the ability to affect.  Your description will be shown to others when they
 'look' at your character or object.`,
     exec: async (ctx) => {
       const tar = await mu.grid.target(ctx.en, ctx.args[1]);
-      if (mu.flags.canEdit(tar)) {
+      if (mu.flags.canEdit(ctx.en, tar)) {
         if (mu.flags.hasFlags(tar, "object")) {
           tar.data.desc = ctx.args[2];
           await mu.db.update(tar._id, tar);

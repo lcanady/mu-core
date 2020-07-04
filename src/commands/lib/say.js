@@ -18,13 +18,13 @@ Everyone else -> Kumakun says, "Hello World!"`,
       const en = await mu.db.get(ctx._id);
       const room = await mu.db.get(en.data.location);
       const contents = room.data.contents;
-
+      const text = await mu.parser.run(ctx.en, ctx.args[1], mu.scope);
       mu.send.to(
         contents.filter((item) => item !== en._id),
-        `${en.data.name} says, "${ctx.args[1]}%cn"`
+        `${en.data.name} says, "${text}%cn"`
       );
 
-      mu.send.to([en._id], `You say "${ctx.args[1]}%cn"`);
+      mu.send.to([en._id], `You say "${text}%cn"`);
     },
   });
 };
