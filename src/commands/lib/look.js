@@ -26,7 +26,17 @@ you must have the proper permissions to view the intended target.`,
       // Determine if the object Name/Moniker should be displayed
       // or nameFormat should instead.  TODO: Fill out stub for
       // nameFormat.
-      desc += mu.grid.name(en, tar) + "\n";
+      let name;
+      if (mu.attrs.has(tar, "nameformat") && en.data.location === tar._id) {
+        const attr = mu.attrs.get(tar, "nameformat");
+        name = await mu.parser.run(en, attr.value, {
+          ...mu.scope,
+          ...{ "%0": mu.grid.name(en, tar) },
+        });
+      } else {
+        name = mu.grid.name(en, tar);
+      }
+      desc += name + "\n";
       desc += tar.data.desc || "You see nothing special.";
 
       // Check to see if the target has anything in it's inventory.

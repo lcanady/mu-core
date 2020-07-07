@@ -75,8 +75,8 @@ class Parser {
 
         ctx = await service.exec(ctx);
 
-        for (const bhook of service.hooks.get("after")) {
-          ctx = await bhook(ctx);
+        for (const ahook of service.hooks.get("after")) {
+          ctx = await ahook(ctx);
         }
 
         return ctx;
@@ -94,7 +94,16 @@ class Parser {
     // If the expression is a word, return it's value in scope, else
     // just the value of the expression.
     if (expr.type === "word") {
-      return scope[expr.value] || expr.value;
+      // if it's not an imbededded version of a scope variable, return it.
+      if (scope[expr.value]) {
+        return scope[expr.value];
+      } else {
+        let res = expr.value;
+        for (let k in scope) {
+          res = expr.value.replace(k, scope[k]);
+        }
+        return res;
+      }
     } else if (expr.type === "function") {
       // If the expression is a function, search for it to see if it
       // exists first.

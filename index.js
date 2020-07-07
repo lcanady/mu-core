@@ -53,6 +53,8 @@ ipc.serve(() => {
     socket.on("close", () => {
       connections = connections.filter((conn) => conn.id !== socket.id);
     });
+
+    socket.on("error", (err) => console.log(err));
   });
 
   // Start the TCP server.

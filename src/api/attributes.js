@@ -38,19 +38,27 @@ module.exports = (mu) => {
      * @param {*} tar The target
      * @param {string} name The name of the attribute to get.
      */
-    get(obj1, obj2, name) {
-      if (mu.flags.canEdit(obj1, obj2)) {
-        // If obj is an actual in-game object
-        if (obj2.flags.indexOf("object") >= 0) {
-          // If Obj2 actually has the attribute, return the value.
-          if (obj2.data.attributes.hasOwnProperty(name.toLowerCase())) {
-            return obj2.data.attributes[name.toLowerCase()];
-          }
-        } else {
-          return "That's not an object.";
+    get(obj, name) {
+      // If obj is an actual in-game object
+      if (mu.flags.hasFlags(obj, "object")) {
+        // If Obj2 actually has the attribute, return the value.
+        if (obj.data.attributes.hasOwnProperty(name.toLowerCase())) {
+          return obj.data.attributes[name.toLowerCase()];
         }
+      }
+    }
+
+    /**
+     * See if an attribute exsists on an object.
+     * @param {Object} obj The object to check for the existance of an
+     * attribute.
+     * @param {string} attr The name of the aattribute to find.
+     */
+    has(obj, attr) {
+      if (mu.flags.hasFlags(obj, "object")) {
+        return obj.data.attributes.hasOwnProperty(attr.toLowerCase());
       } else {
-        return "Permission denied.";
+        return false;
       }
     }
   }
