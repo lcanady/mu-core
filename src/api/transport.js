@@ -8,7 +8,7 @@ module.exports = class User extends EventEmitter {
   constructor(socket) {
     super();
     this.socket = socket;
-    this.id = v4();
+    this.id = socket.id;
   }
 
   write(ctx) {

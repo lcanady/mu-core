@@ -21,13 +21,12 @@ module.exports = (mu) => {
           JSON.stringify([char[0]._id, ctx.id])
         );
 
+        ctx._id = char[0]._id;
         // Set connection flags
         await mu.flags.setFlags(char[0], "connected");
-        ctx._id = char[0]._id;
-
-        // Run login commands.
         mu.send.to(ctx._id, mu.txt.get("motd"));
         mu.force(char[0], "look", ctx);
+        mu.emit("connected", char[0]);
       } else {
         mu.send.acct(ctx.id, "Authentication failed.");
       }

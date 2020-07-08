@@ -29,7 +29,7 @@ module.exports = (mu) => {
         char.data.password = sha512(ctx.args[2]);
         char.data.owner = char._id;
         char.data.location = mu.config.game.startRoom || "#0";
-
+        mu.emit("connected", char);
         if (players.length <= 0) {
           await mu.flags.setFlags(char, "connected immortal");
         } else {

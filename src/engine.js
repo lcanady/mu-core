@@ -33,6 +33,32 @@ ipc.connectTo("ursamu", () => {
   });
 });
 
+// Panic button pressed!
+ipc.of.ursamu.on("cleanboot", async () => {
+  players = await mu.db.find({
+    $where: function () {
+      return mu.flags.hasFlags(this, "connected");
+    },
+  });
+
+  for (const player of players) {
+    await mu.flags.setFlags(player, "!connected");
+  }
+});
+
+mu.on("connected", async (tar) => {
+  const room = await mu.db.get(tar.data.location);
+  // Run login commands.
+
+  // If the logging in character isn't dark, send a notification to the room contents.
+  if (mu.flags.hasFlags(tar, "!dark")) {
+    mu.send.to(
+      room.data.contents.filter((item) => item !== tar._id),
+      `${tar.data.moniker || tar.data.name} has connected.`
+    );
+  }
+});
+
 process.on("SIGINT", () => process.exit(1));
 process.on("SIGTERM", () => process.exit(0));
 process.on("exit", () => process.exit(0));

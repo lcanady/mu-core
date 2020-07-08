@@ -5,6 +5,8 @@ const User = require("./src/api/transport");
 const { spawn } = require("child_process");
 const { readFile } = require("fs");
 const { resolve } = require("path");
+const { v4 } = require("uuid");
+const { get } = require("http");
 
 ipc.config.id = "ursamu";
 ipc.config.retry = 1500;
@@ -26,6 +28,7 @@ ipc.serve(() => {
   // channel loads..
   const tcpServer = createServer((socket) => {
     // create a new user wrapper for the sockets coming through
+    socket.id = v4();
     const user = new User(socket);
 
     // Add the connection to the connections array.
@@ -52,9 +55,26 @@ ipc.serve(() => {
     // When a socket disconnects, remove it from the list.
     socket.on("close", () => {
       connections = connections.filter((conn) => conn.id !== socket.id);
+      const _id = avatars.get(socket.id);
+      const users = getUser(_id);
+      // If they don't have any other connections, remove the connected
+      // flag from the character.
+      if (users.length <= 1) {
+        ipc.server.broadcast("flags", { _id, flags: "!connected" });
+      }
     });
 
-    socket.on("error", (err) => console.log(err));
+    socket.on("error", (err) => {
+      connections = connections.filter((conn) => conn.id !== socket.id);
+      console.log(err);
+      const _id = avatars.get(socket.id);
+      const users = getUser(_id);
+      // If they don't have any other connections, remove the connected
+      // flag from the character.
+      if (users.length <= 1) {
+        ipc.server.broadcast("flags", { _id, flags: "!connected" });
+      }
+    });
   });
 
   // Start the TCP server.
@@ -166,4 +186,10 @@ ipc.serve(() => {
     .on("error", (err) => console.log(err));
 });
 
+process.on("SIGTERM", () => parser.kill("SIGTERM"));
+process.on("uncaughtException", (err) => console.log(err));
+
 ipc.server.start();
+// clean up the connected flags in-case last shutdown wasn't cleanly
+// done.
+setTimeout(() => ipc.server.broadcast("cleanboot"), 2000);
